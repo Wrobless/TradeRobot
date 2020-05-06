@@ -1,12 +1,8 @@
-//+------------------------------------------------------------------+
-//|                                                         Test.mq4 |
-//|                        Copyright 2020, MetaQuotes Software Corp. |
-//|                                             https://www.mql5.com |
-//+------------------------------------------------------------------+
 #include <stdlib.mqh>
 
 #property strict
 #property script_show_inputs
+
 //--- input parameters
 input double           inpBuyLots=1.0;                    // Number of lots to buy
 input double           inpBuySL=15.0;                       // Buy stop loss level
@@ -37,11 +33,21 @@ input string           inpSellText="SELL";            // Sell button text
 input string           inpSellFont="Arial";             // Sell button font
 input int              inpSellFontSize=12;              // Sell button font size
 input color            inpSellColor=clrWhiteSmoke;           // Sell button text color
-input color            inpSellBackColor=clrGreen; // Sell button background color
+input color            inpSellBackColor=clrRed; // Sell button background color
 input color            inpSellBorderColor=clrNONE;      // Sell button border color
 input bool             inpSellState=false;              // Sell button pressed/Released
 input bool             inpSellHidden=true;              // Sell button hidden in the object list
 input long             inpSellZOrder=0;                 // Sell button priority for mouse click
+
+input string           inpCloseText="CLOSE ALL";            // Close button text
+input string           inpCloseFont="Arial";             // Close button font
+input int              inpCloseFontSize=12;              // Close button font size
+input color            inpCloseColor=clrWhiteSmoke;           // Close button text color
+input color            inpCloseBackColor=clrRed; // Close button background color
+input color            inpCloseBorderColor=clrNONE;      // Close button border color
+input bool             inpCloseState=false;              // Close button pressed/Released
+input bool             inpCloseHidden=true;              // Close button hidden in the object list
+input long             inpCloseZOrder=0;                 // Close button priority for mouse click
 
 const string BACKGROUNDID = "Background";
 bool backgroundMoveToBack = true;
@@ -54,6 +60,10 @@ bool buyButtonMoveToBack=false;
 const string SELLBUTTONID = "SellButton";
 bool sellButtonSelection=false;
 bool sellButtonMoveToBack=false;
+
+const string CLOSEBUTTONID = "CloseButton";
+bool closeButtonSelection=false;
+bool closeButtonMoveToBack=false;
    
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -72,6 +82,7 @@ int OnInit()
      {
       Print("Failed to get the chart width! Error code = ",GetLastError());
      }
+
    int xBackgroundPosition = (int)(xWindowSize / 8) + 5;
    int yBackgroundPosition = (int)(yWindowSize / 16);
    int backgroundWidth = (int)xWindowSize / 8;
@@ -85,19 +96,46 @@ int OnInit()
      {
       Print(__FUNCTION__,": failed to create the background! Error code = ",GetLastError());
      }
+
    int xBuyButtonPosition = xBackgroundPosition - 10;
    int yBuyButtonPosition = yBackgroundPosition + 10;
    int buyButtonWidth = backgroundWidth - 20;
    int buyButtonHeight = (backgroundHeight / 4) - 5;
-   
      
    if(!ButtonCreate(0,BUYBUTTONID,0,xBuyButtonPosition,yBuyButtonPosition,buyButtonWidth,buyButtonHeight,
                     inpCorner,inpBuyText,inpBuyFont,inpBuyFontSize,inpBuyColor,
                     inpBuyBackColor,inpBuyBorderColor,inpBuyState,buyButtonMoveToBack,
                     buyButtonSelection,inpBuyHidden,inpBuyZOrder))
      {
-      Print(__FUNCTION__,": failed to create the button! Error code = ",GetLastError());
+      Print(__FUNCTION__,": failed to create the buy button! Error code = ",GetLastError());
      }
+
+   int xSellButtonPosition = xBackgroundPosition - 10;
+   int ySellButtonPosition = yBuyButtonPosition + buyButtonHeight + 5;
+   int sellButtonWidth = backgroundWidth - 20;
+   int sellButtonHeight = (backgroundHeight / 4) - 5;
+
+   if(!ButtonCreate(0,SELLBUTTONID,0,xSellButtonPosition,ySellButtonPosition,sellButtonWidth,sellButtonHeight,
+                    inpCorner,inpSellText,inpSellFont,inpSellFontSize,inpSellColor,
+                    inpSellBackColor,inpSellBorderColor,inpSellState,sellButtonMoveToBack,
+                    sellButtonSelection,inpSellHidden,inpSellZOrder))
+     {
+      Print(__FUNCTION__,": failed to create the sell button! Error code = ",GetLastError());
+     }
+
+   int xCloseButtonPosition = xBackgroundPosition - 10;
+   int yCloseButtonPosition = ySellButtonPosition + buyButtonHeight + 5;
+   int closeButtonWidth = backgroundWidth - 20;
+   int closeButtonHeight = (backgroundHeight / 4) - 5;
+
+   if(!ButtonCreate(0,CLOSEBUTTONID,0,xCloseButtonPosition,yCloseButtonPosition,closeButtonWidth,closeButtonHeight,
+                    inpCorner,inpCloseText,inpCloseFont,inpCloseFontSize,inpCloseColor,
+                    inpCloseBackColor,inpCloseBorderColor,inpCloseState,closeButtonMoveToBack,
+                    closeButtonSelection,inpCloseHidden,inpCloseZOrder))
+     {
+      Print(__FUNCTION__,": failed to create the close button! Error code = ",GetLastError());
+     }
+
    ChartRedraw();
 //---
    return(INIT_SUCCEEDED);
