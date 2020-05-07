@@ -5,8 +5,8 @@
 
 //--- input parameters
 input double           inpBuyLots=1.0;                    // Number of lots to buy
-input double           inpBuySL=15.0;                       // Buy stop loss level
-input double           inpBuyTP=40.0;                       // Buy take profit level
+input double           inpBuySL=1500.0;                       // Buy stop loss level
+input double           inpBuyTP=1500.0;                       // Buy take profit level
 input int              inpBuySlippage=0;                  // Buy slippage value
 
 input ENUM_BASE_CORNER inpCorner=CORNER_RIGHT_UPPER; // Chart corner for anchoring
@@ -43,11 +43,41 @@ input string           inpCloseText="CLOSE ALL";            // Close button text
 input string           inpCloseFont="Arial";             // Close button font
 input int              inpCloseFontSize=12;              // Close button font size
 input color            inpCloseColor=clrWhiteSmoke;           // Close button text color
-input color            inpCloseBackColor=clrRed; // Close button background color
+input color            inpCloseBackColor=clrBlue; // Close button background color
 input color            inpCloseBorderColor=clrNONE;      // Close button border color
 input bool             inpCloseState=false;              // Close button pressed/Released
 input bool             inpCloseHidden=true;              // Close button hidden in the object list
 input long             inpCloseZOrder=0;                 // Close button priority for mouse click
+
+input string           inpSLUPText="SL UP";            // SLUP button text
+input string           inpSLUPFont="Arial";             // SLUP button font
+input int              inpSLUPFontSize=12;              // SLUP button font size
+input color            inpSLUPColor=clrWhiteSmoke;           // SLUP button text color
+input color            inpSLUPBackColor=clrLimeGreen; // SLUP button background color
+input color            inpSLUPBorderColor=clrNONE;      // SLUP button border color
+input bool             inpSLUPState=false;              // SLUP button pressed/Released
+input bool             inpSLUPHidden=true;              // SLUP button hidden in the object list
+input long             inpSLUPZOrder=0;                 // SLUP button priority for mouse click
+
+input string           inpSLDownText="SL DOWN";            // SLDown button text
+input string           inpSLDownFont="Arial";             // SLDown button font
+input int              inpSLDownFontSize=12;              // SLDown button font size
+input color            inpSLDownColor=clrWhiteSmoke;           // SLDown button text color
+input color            inpSLDownBackColor=clrDarkOrange; // SLDown button background color
+input color            inpSLDownBorderColor=clrNONE;      // SLDown button border color
+input bool             inpSLDownState=false;              // SLDown button pressed/Released
+input bool             inpSLDownHidden=true;              // SLDown button hidden in the object list
+input long             inpSLDownZOrder=0;                 // SLDown button priority for mouse click
+
+input string           inpSwapOrderText="SWAP ORDER";            // SwapOrder button text
+input string           inpSwapOrderFont="Arial";             // SwapOrder button font
+input int              inpSwapOrderFontSize=12;              // SwapOrder button font size
+input color            inpSwapOrderColor=clrWhiteSmoke;           // SwapOrder button text color
+input color            inpSwapOrderBackColor=clrPurple; // SwapOrder button background color
+input color            inpSwapOrderBorderColor=clrNONE;      // SwapOrder button border color
+input bool             inpSwapOrderState=false;              // SwapOrder button pressed/Released
+input bool             inpSwapOrderHidden=true;              // SwapOrder button hidden in the object list
+input long             inpSwapOrderZOrder=0;                 // SwapOrder button priority for mouse click
 
 const string BACKGROUNDID = "Background";
 bool backgroundMoveToBack = true;
@@ -64,15 +94,29 @@ bool sellButtonMoveToBack=false;
 const string CLOSEBUTTONID = "CloseButton";
 bool closeButtonSelection=false;
 bool closeButtonMoveToBack=false;
+
+const string SLUPBUTTONID = "SLUPButton";
+bool sLUPButtonSelection=false;
+bool sLUPButtonMoveToBack=false;
+
+const string SLDOWNBUTTONID = "SLDownButton";
+bool sLDownButtonSelection=false;
+bool sLDownButtonMoveToBack=false;
+
+const string SWAPORDERBUTTONID = "SwapOrderButton";
+bool swapOrderButtonSelection=false;
+bool swapOrderButtonMoveToBack=false;
    
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
 int OnInit()
   {
-//---
    long xWindowSize;
    long yWindowSize;
+   int numberOfButtons = 6;
+   int margin = 20;
+   int spacing = 5;
 
    if(!ChartGetInteger(0,CHART_WIDTH_IN_PIXELS,0,xWindowSize))
      {
@@ -83,10 +127,13 @@ int OnInit()
       Print("Failed to get the chart width! Error code = ",GetLastError());
      }
 
+   int buttonWidth = ((int)xWindowSize / 8) - 20;
+   int buttonHeight = ((int)yWindowSize / 16) - 5;
+
    int xBackgroundPosition = (int)(xWindowSize / 8) + 5;
    int yBackgroundPosition = (int)(yWindowSize / 16);
-   int backgroundWidth = (int)xWindowSize / 8;
-   int backgroundHeight = (int)yWindowSize / 4;
+   int backgroundWidth = buttonWidth + 20;
+   int backgroundHeight = ((buttonHeight + spacing) * numberOfButtons) + margin - spacing;
 
    if(!RectLabelCreate(0,BACKGROUNDID,0,xBackgroundPosition,yBackgroundPosition,
                        backgroundWidth,backgroundHeight,inpBackgroundBackColor,
@@ -99,10 +146,8 @@ int OnInit()
 
    int xBuyButtonPosition = xBackgroundPosition - 10;
    int yBuyButtonPosition = yBackgroundPosition + 10;
-   int buyButtonWidth = backgroundWidth - 20;
-   int buyButtonHeight = (backgroundHeight / 4) - 5;
      
-   if(!ButtonCreate(0,BUYBUTTONID,0,xBuyButtonPosition,yBuyButtonPosition,buyButtonWidth,buyButtonHeight,
+   if(!ButtonCreate(0,BUYBUTTONID,0,xBuyButtonPosition,yBuyButtonPosition,buttonWidth,buttonHeight,
                     inpCorner,inpBuyText,inpBuyFont,inpBuyFontSize,inpBuyColor,
                     inpBuyBackColor,inpBuyBorderColor,inpBuyState,buyButtonMoveToBack,
                     buyButtonSelection,inpBuyHidden,inpBuyZOrder))
@@ -111,11 +156,9 @@ int OnInit()
      }
 
    int xSellButtonPosition = xBackgroundPosition - 10;
-   int ySellButtonPosition = yBuyButtonPosition + buyButtonHeight + 5;
-   int sellButtonWidth = backgroundWidth - 20;
-   int sellButtonHeight = (backgroundHeight / 4) - 5;
+   int ySellButtonPosition = yBuyButtonPosition + buttonHeight + 5;
 
-   if(!ButtonCreate(0,SELLBUTTONID,0,xSellButtonPosition,ySellButtonPosition,sellButtonWidth,sellButtonHeight,
+   if(!ButtonCreate(0,SELLBUTTONID,0,xSellButtonPosition,ySellButtonPosition,buttonWidth,buttonHeight,
                     inpCorner,inpSellText,inpSellFont,inpSellFontSize,inpSellColor,
                     inpSellBackColor,inpSellBorderColor,inpSellState,sellButtonMoveToBack,
                     sellButtonSelection,inpSellHidden,inpSellZOrder))
@@ -124,11 +167,9 @@ int OnInit()
      }
 
    int xCloseButtonPosition = xBackgroundPosition - 10;
-   int yCloseButtonPosition = ySellButtonPosition + buyButtonHeight + 5;
-   int closeButtonWidth = backgroundWidth - 20;
-   int closeButtonHeight = (backgroundHeight / 4) - 5;
+   int yCloseButtonPosition = ySellButtonPosition + buttonHeight + 5;
 
-   if(!ButtonCreate(0,CLOSEBUTTONID,0,xCloseButtonPosition,yCloseButtonPosition,closeButtonWidth,closeButtonHeight,
+   if(!ButtonCreate(0,CLOSEBUTTONID,0,xCloseButtonPosition,yCloseButtonPosition,buttonWidth,buttonHeight,
                     inpCorner,inpCloseText,inpCloseFont,inpCloseFontSize,inpCloseColor,
                     inpCloseBackColor,inpCloseBorderColor,inpCloseState,closeButtonMoveToBack,
                     closeButtonSelection,inpCloseHidden,inpCloseZOrder))
@@ -136,8 +177,42 @@ int OnInit()
       Print(__FUNCTION__,": failed to create the close button! Error code = ",GetLastError());
      }
 
-   ChartRedraw();
-//---
+   int xSLUPButtonPosition = xBackgroundPosition - 10;
+   int ySLUPButtonPosition = yCloseButtonPosition + buttonHeight + 5;
+
+   if(!ButtonCreate(0,SLUPBUTTONID,0,xSLUPButtonPosition,ySLUPButtonPosition,buttonWidth,buttonHeight,
+                    inpCorner,inpSLUPText,inpSLUPFont,inpSLUPFontSize,inpSLUPColor,
+                    inpSLUPBackColor,inpSLUPBorderColor,inpSLUPState,sLUPButtonMoveToBack,
+                    sLUPButtonSelection,inpSLUPHidden,inpSLUPZOrder))
+     {
+      Print(__FUNCTION__,": failed to create the sl up button! Error code = ",GetLastError());
+     }
+
+   int xSLDownButtonPosition = xBackgroundPosition - 10;
+   int ySLDownButtonPosition = ySLUPButtonPosition + buttonHeight + 5;
+
+   if(!ButtonCreate(0,SLDOWNBUTTONID,0,xSLDownButtonPosition,ySLDownButtonPosition,buttonWidth,buttonHeight,
+                    inpCorner,inpSLDownText,inpSLDownFont,inpSLDownFontSize,inpSLDownColor,
+                    inpSLDownBackColor,inpSLDownBorderColor,inpSLDownState,sLDownButtonMoveToBack,
+                    sLDownButtonSelection,inpSLDownHidden,inpSLDownZOrder))
+     {
+      Print(__FUNCTION__,": failed to create the sl down button! Error code = ",GetLastError());
+     }
+
+   int xSwapOrderButtonPosition = xBackgroundPosition - 10;
+   int ySwapOrderButtonPosition = ySLDownButtonPosition + buttonHeight + 5;
+
+   if(!ButtonCreate(0,SWAPORDERBUTTONID,0,xSwapOrderButtonPosition,ySwapOrderButtonPosition,buttonWidth,buttonHeight,
+                    inpCorner,inpSwapOrderText,inpSwapOrderFont,inpSwapOrderFontSize,inpSwapOrderColor,
+                    inpSwapOrderBackColor,inpSwapOrderBorderColor,inpSwapOrderState,swapOrderButtonMoveToBack,
+                    swapOrderButtonSelection,inpSwapOrderHidden,inpSwapOrderZOrder))
+     {
+      Print(__FUNCTION__,": failed to create the sl down button! Error code = ",GetLastError());
+     }
+
+
+
+   ChartRedraw(0);
    return(INIT_SUCCEEDED);
   }
 //+------------------------------------------------------------------+
@@ -145,7 +220,6 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
   {
-//---
 
   }
 //+------------------------------------------------------------------+
@@ -153,7 +227,6 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
   {
-//---
 
   }
 //+------------------------------------------------------------------+
@@ -168,10 +241,9 @@ void OnChartEvent(const int id,
    int _error = 0;
    if(sparam == BUYBUTTONID)
      {
-      double minstoplevel=MarketInfo(Symbol(),MODE_STOPLEVEL);
-      Print("Minimum Stop Level=",minstoplevel," points");
-      double stoploss=NormalizeDouble(Bid-minstoplevel*Point,Digits);
-      double takeprofit=NormalizeDouble(Bid+minstoplevel*Point,Digits);
+      
+      double stoploss = NormalizeDouble((Bid - inpBuySL) * Point, _Digits);
+      double takeprofit = NormalizeDouble((Bid + inpBuyTP) * Point, _Digits);
 
       _ticket = OrderSend(Symbol(),OP_BUY,inpBuyLots,Ask,inpBuySlippage,stoploss,takeprofit);
       if(_ticket > 0)
@@ -193,7 +265,7 @@ void OnChartEvent(const int id,
         }
      }
   }
-//+------------------------------------------------------------------+
+
 bool ButtonCreate(const long              chart_ID=0,               // chart's ID
                   const string            name="Button",            // button name
                   const int               sub_window=0,             // subwindow index
