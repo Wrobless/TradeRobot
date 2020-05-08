@@ -58,17 +58,17 @@ input bool inpCloseState = false;                         // Close button presse
 input bool inpCloseHidden = true;                         // Close button hidden in the object list
 input long inpCloseZOrder = 0;                            // Close button priority for mouse click
 
-input string inpSLUPText = "SL UP";                       // SLUP button text
-input string inpSLUPFont = "Arial";                       // SLUP button font
-input int inpSLUPFontSize = 12;                           // SLUP button font size
-input color inpSLUPColor = clrWhiteSmoke;                 // SLUP button text color
-input color inpSLUPBackColor = clrLimeGreen;              // SLUP button background color
-input color inpSLUPBorderColor = clrNONE;                 // SLUP button border color
-input bool inpSLUPState = false;                          // SLUP button pressed/Released
-input bool inpSLUPHidden = true;                          // SLUP button hidden in the object list
-input long inpSLUPZOrder = 0;                             // SLUP button priority for mouse click
+input string inpBreakEvenText = "BREAK EVEN";             // BreakEven button text
+input string inpBreakEvenFont = "Arial";                  // BreakEven button font
+input int inpBreakEvenFontSize = 12;                      // BreakEven button font size
+input color inpBreakEvenColor = clrWhiteSmoke;            // BreakEven button text color
+input color inpBreakEvenBackColor = clrLimeGreen;         // BreakEven button background color
+input color inpBreakEvenBorderColor = clrNONE;            // BreakEven button border color
+input bool inpBreakEvenState = false;                     // BreakEven button pressed/Released
+input bool inpBreakEvenHidden = true;                     // BreakEven button hidden in the object list
+input long inpBreakEvenZOrder = 0;                        // BreakEven button priority for mouse click
 
-input string inpSLDownText = "SL DOWN";                   // SLDown button text
+input string inpSLDownText = "";                          // SLDown button text
 input string inpSLDownFont = "Arial";                     // SLDown button font
 input int inpSLDownFontSize = 12;                         // SLDown button font size
 input color inpSLDownColor = clrWhiteSmoke;               // SLDown button text color
@@ -78,7 +78,7 @@ input bool inpSLDownState = false;                        // SLDown button press
 input bool inpSLDownHidden = true;                        // SLDown button hidden in the object list
 input long inpSLDownZOrder = 0;                           // SLDown button priority for mouse click
 
-input string inpSwapOrderText = "SWAP ORDER";             // SwapOrder button text
+input string inpSwapOrderText = "";                       // SwapOrder button text
 input string inpSwapOrderFont = "Arial";                  // SwapOrder button font
 input int inpSwapOrderFontSize = 12;                      // SwapOrder button font size
 input color inpSwapOrderColor = clrWhiteSmoke;            // SwapOrder button text color
@@ -89,32 +89,17 @@ input bool inpSwapOrderHidden = true;                     // SwapOrder button hi
 input long inpSwapOrderZOrder = 0;                        // SwapOrder button priority for mouse click
 
 const string BACKGROUNDID = "Background";
-bool backgroundMoveToBack = true;
+const string BUTTONID1 = "BuyButton";
+const string BUTTONID2 = "SellButton";
+const string BUTTONID3 = "CloseButton";
+const string BUTTONID4 = "BreakEvenButton";
+const string BUTTONID5 = "SLDownButton";
+const string BUTTONID6 = "SwapOrderButton";
+
+bool backgroundMoveToBack = false;
 bool backgroundSelection = false;
-
-const string BUYBUTTONID = "BuyButton";
-bool buyButtonSelection = false;
-bool buyButtonMoveToBack = false;
-
-const string SELLBUTTONID = "SellButton";
-bool sellButtonSelection = false;
-bool sellButtonMoveToBack = false;
-
-const string CLOSEBUTTONID = "CloseButton";
-bool closeButtonSelection = false;
-bool closeButtonMoveToBack = false;
-
-const string SLUPBUTTONID = "SLUPButton";
-bool sLUPButtonSelection = false;
-bool sLUPButtonMoveToBack = false;
-
-const string SLDOWNBUTTONID = "SLDownButton";
-bool sLDownButtonSelection = false;
-bool sLDownButtonMoveToBack = false;
-
-const string SWAPORDERBUTTONID = "SwapOrderButton";
-bool swapOrderButtonSelection = false;
-bool swapOrderButtonMoveToBack = false;
+bool buttonSelection = false;
+bool buttonMoveToBack = false;
 
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
@@ -134,39 +119,39 @@ int OnInit()
    int xBuyButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int yBuyButtonPosition = yBackgroundPosition + inpBackgroundMargin;
 
-   CreateButton(BUYBUTTONID, xBuyButtonPosition, yBuyButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpBuyText, inpBuyFont, inpBuyFontSize, 
-               inpBuyColor, inpBuyBackColor, inpBuyBorderColor, inpBuyState, buyButtonMoveToBack, buyButtonSelection, inpBuyHidden, inpBuyZOrder); 
+   CreateButton(BUTTONID1, xBuyButtonPosition, yBuyButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpBuyText, inpBuyFont, inpBuyFontSize, 
+               inpBuyColor, inpBuyBackColor, inpBuyBorderColor, inpBuyState, buttonMoveToBack, buttonSelection, inpBuyHidden, inpBuyZOrder); 
 
    int xSellButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int ySellButtonPosition = yBuyButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(SELLBUTTONID, xSellButtonPosition, ySellButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSellText, inpSellFont, inpSellFontSize, 
-               inpSellColor, inpSellBackColor, inpSellBorderColor, inpSellState, sellButtonMoveToBack, sellButtonSelection, inpSellHidden, inpSellZOrder);
+   CreateButton(BUTTONID2, xSellButtonPosition, ySellButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSellText, inpSellFont, inpSellFontSize, 
+               inpSellColor, inpSellBackColor, inpSellBorderColor, inpSellState, buttonMoveToBack, buttonSelection, inpSellHidden, inpSellZOrder);
 
    int xCloseButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int yCloseButtonPosition = ySellButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(CLOSEBUTTONID, xCloseButtonPosition, yCloseButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpCloseText, inpCloseFont, inpCloseFontSize, 
-               inpCloseColor, inpCloseBackColor, inpCloseBorderColor, inpCloseState, closeButtonMoveToBack, closeButtonSelection, inpCloseHidden, inpCloseZOrder);
+   CreateButton(BUTTONID3, xCloseButtonPosition, yCloseButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpCloseText, inpCloseFont, inpCloseFontSize, 
+               inpCloseColor, inpCloseBackColor, inpCloseBorderColor, inpCloseState, buttonMoveToBack, buttonSelection, inpCloseHidden, inpCloseZOrder);
 
-   int xSLUPButtonPosition = xBackgroundPosition - inpBackgroundMargin;
-   int ySLUPButtonPosition = yCloseButtonPosition + inpButtonHeight + inpButtonSpacing;
+   int xBreakEvenButtonPosition = xBackgroundPosition - inpBackgroundMargin;
+   int yBreakEvenButtonPosition = yCloseButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(SLUPBUTTONID, xSLUPButtonPosition, ySLUPButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSLUPText, inpSLUPFont, inpSLUPFontSize, 
-               inpSLUPColor, inpSLUPBackColor, inpSLUPBorderColor, inpSLUPState, sLUPButtonMoveToBack, sLUPButtonSelection, inpSLUPHidden, inpSLUPZOrder);
+   CreateButton(BUTTONID4, xBreakEvenButtonPosition, yBreakEvenButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpBreakEvenText, inpBreakEvenFont, inpBreakEvenFontSize, 
+               inpBreakEvenColor, inpBreakEvenBackColor, inpBreakEvenBorderColor, inpBreakEvenState, buttonMoveToBack, buttonSelection, inpBreakEvenHidden, inpBreakEvenZOrder);
 
    int xSLDownButtonPosition = xBackgroundPosition - inpBackgroundMargin;
-   int ySLDownButtonPosition = ySLUPButtonPosition + inpButtonHeight + inpButtonSpacing;
+   int ySLDownButtonPosition = yBreakEvenButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(SLDOWNBUTTONID, xSLDownButtonPosition, ySLDownButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSLDownText, inpSLDownFont, inpSLDownFontSize, 
-               inpSLDownColor, inpSLDownBackColor, inpSLDownBorderColor, inpSLDownState, sLDownButtonMoveToBack, sLDownButtonSelection, inpSLDownHidden, inpSLDownZOrder);
+   CreateButton(BUTTONID5, xSLDownButtonPosition, ySLDownButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSLDownText, inpSLDownFont, inpSLDownFontSize, 
+               inpSLDownColor, inpSLDownBackColor, inpSLDownBorderColor, inpSLDownState, buttonMoveToBack, buttonSelection, inpSLDownHidden, inpSLDownZOrder);
 
    int xSwapOrderButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int ySwapOrderButtonPosition = ySLDownButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(SWAPORDERBUTTONID, xSwapOrderButtonPosition, ySwapOrderButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSwapOrderText, inpSwapOrderFont, 
-               inpSwapOrderFontSize, inpSwapOrderColor, inpSwapOrderBackColor, inpSwapOrderBorderColor, inpSwapOrderState, swapOrderButtonMoveToBack, 
-               swapOrderButtonSelection, inpSwapOrderHidden, inpSwapOrderZOrder);
+   CreateButton(BUTTONID6, xSwapOrderButtonPosition, ySwapOrderButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSwapOrderText, inpSwapOrderFont, 
+               inpSwapOrderFontSize, inpSwapOrderColor, inpSwapOrderBackColor, inpSwapOrderBorderColor, inpSwapOrderState, buttonMoveToBack, 
+               buttonSelection, inpSwapOrderHidden, inpSwapOrderZOrder);
 
    ChartRedraw(0);
    return (INIT_SUCCEEDED);
@@ -191,9 +176,9 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
 {
-   if (sparam == BUYBUTTONID)
+   if (sparam == BUTTONID1)
    {
-      int openOrders = CountOpenOrders(OP_BUY);
+      int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
       {
          BuyOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
@@ -203,9 +188,9 @@ void OnChartEvent(const int id,
          Print("Maximum number of opened orders has been reached!");
       }
    }
-   if (sparam == SELLBUTTONID)
+   if (sparam == BUTTONID2)
    {
-      int openOrders = CountOpenOrders(OP_SELL);
+      int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
       {
          SellOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
@@ -215,7 +200,7 @@ void OnChartEvent(const int id,
          Print("Maximum number of opened orders has been reached!");
       }
    }
-   if (sparam == CLOSEBUTTONID)
+   if (sparam == BUTTONID3)
    {
       CloseAllOrders();
    }
@@ -254,7 +239,7 @@ void BuyOrder(double lots, double stopLoss, double takeProfit, int slippage)
    {
       if (OrderSelect(_ticket, SELECT_BY_TICKET) == true)
       {
-         ObjectSetInteger(0,BUYBUTTONID, OBJPROP_STATE, false);
+         ObjectSetInteger(0,BUTTONID1, OBJPROP_STATE, false);
          Print("Buy order price is ", OrderOpenPrice());
       }
       else
@@ -282,7 +267,7 @@ void SellOrder(double lots, double stopLoss, double takeProfit, int slippage)
    {
       if (OrderSelect(_ticket, SELECT_BY_TICKET) == true)
       {
-         ObjectSetInteger(0, SELLBUTTONID, OBJPROP_STATE, false);
+         ObjectSetInteger(0, BUTTONID2, OBJPROP_STATE, false);
          Print("Sell order price is ", OrderOpenPrice());
       }
       else
@@ -298,7 +283,7 @@ void SellOrder(double lots, double stopLoss, double takeProfit, int slippage)
    }
 }
 
-int CountOpenOrders(int orderType)
+int CountOpenOrders()
 {
    int type;
    int count = 0;
@@ -308,11 +293,7 @@ int CountOpenOrders(int orderType)
    {
       if (OrderSelect(pos, SELECT_BY_POS))
       {
-         type = OrderType();
-         if (type == orderType)
-         {
-            count++;
-         }
+         count++;
       }
    }
    return count;
@@ -342,5 +323,5 @@ void CloseAllOrders()
          }
       }
    }
-   ObjectSetInteger(0, CLOSEBUTTONID, OBJPROP_STATE, false);
+   ObjectSetInteger(0, BUTTONID3, OBJPROP_STATE, false);
 }
