@@ -7,21 +7,24 @@
 
 //--- input parameters
 input double inpBuyLots = 1.0;                            // Number of lots to buy
-input double inpStopLoss = 1500.0;                        // Buy stop loss level
-input double inpTakeProfit = 1500.0;                      // Buy take profit level
+input double inpBuyStopLoss = 1500.0;                     // Buy stop loss level
+input double inpBuyTakeProfit = 1500.0;                   // Buy take profit level
 input int inpBuySlippage = 0;                             // Buy slippage value
 input int inpMaxNumberOfBuyOrders = 2;                    // Maximum number of opened buy orders
 
 input double inpSellLots = 1.0;                           // Number of lots to sell
+input double inpSellStopLoss = 1500.0;                    // Sell stop loss level
+input double inpSellTakeProfit = 1500.0;                  // Sell take profit level
 input int inpSellSlippage = 0;                            // Sell slippage value
+input int inpMaxNumberOfSellOrders = 2;                   // Maximum number of opened sell orders
 
 input ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;    // Chart corner for anchoring
 input int inpButtonWidth = 120;                           // Button width
 input int inpButtonHeight = 20;                           // Button height
 input int inpButtonSpacing = 5;                           // Spaces between buttons
 input int inpBackgroundMargin = 10;                       // Background margin
-input int inpBackgroundPositionXOffset = 0;
-input int inpBackgroundPositionYOffset = -10;
+input int inpBackgroundPositionXOffset = 0;               // Background position X offset
+input int inpBackgroundPositionYOffset = -10;             // Background position Y offset
 
 input color inpBackgroundBackColor = clrGray;             // Background color
 input ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
@@ -199,18 +202,24 @@ void OnChartEvent(const int id,
       int openOrders = CountOpenOrders(OP_BUY);
       if (openOrders <= inpMaxNumberOfBuyOrders)
       {
-         OpenOrder(inpBuyLots, inpStopLoss, inpTakeProfit, inpBuySlippage);
+         OpenOrder(inpBuyLots, inpBuyStopLoss, inpBuyTakeProfit, inpBuySlippage);
       }
       else
       {
          Print("Maximum number of opened orders has been reached!");
       }
-      
-      
    }
    if (sparam == SELLBUTTONID)
    {
-      CloseOrder(inpSellLots, inpStopLoss, inpTakeProfit, inpSellSlippage);
+      int openOrders = CountOpenOrders(OP_SELL);
+      if (openOrders <= inpMaxNumberOfSellOrders)
+      {
+         CloseOrder(inpSellLots, inpSellStopLoss, inpSellTakeProfit, inpSellSlippage);
+      }
+      else
+      {
+         Print("Maximum number of opened orders has been reached!");
+      }
    }
 }
 
@@ -238,6 +247,7 @@ void OpenOrder(double lots, double stopLoss, double takeProfit, int slippage)
 {
    int _ticket = 0;
    int _error = 0;
+   RefreshRates();
    double _stoploss = NormalizeDouble((Bid - stopLoss) * Point, _Digits);
    double _takeprofit = NormalizeDouble((Bid + takeProfit) * Point, _Digits);
    _ticket = OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, _stoploss, _takeprofit);
@@ -264,6 +274,7 @@ void CloseOrder(double lots, double stopLoss, double takeProfit, int slippage)
 {
    int _ticket = 0;
    int _error = 0;
+   RefreshRates();
    double _stoploss = NormalizeDouble((Ask + stopLoss) * Point, _Digits);
    double _takeprofit = NormalizeDouble((Ask - takeProfit) * Point, _Digits);
    _ticket = OrderSend(Symbol(), OP_SELL, lots, Bid, slippage, _stoploss, _takeprofit);
