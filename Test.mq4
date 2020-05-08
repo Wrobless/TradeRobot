@@ -11,6 +11,7 @@ input double inpStopLoss = 1500.0;                        // Stop loss level
 input double inpTakeProfit = 1500.0;                      // Take profit level
 input int inpSlippage = 0;                                // Slippage value
 input int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
+input int inpBreakEvenOffset = 0;                         // BreakEven offset value
 
 input ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;    // Chart corner for anchoring
 input int inpButtonWidth = 120;                           // Button width
@@ -204,6 +205,10 @@ void OnChartEvent(const int id,
    {
       CloseAllOrders();
    }
+   if (sparam == BUTTONID4)
+   {
+      BreakEven(inpBreakEvenOffset);
+   }
    
 }
 
@@ -285,7 +290,6 @@ void SellOrder(double lots, double stopLoss, double takeProfit, int slippage)
 
 int CountOpenOrders()
 {
-   int type;
    int count = 0;
    int total = OrdersTotal();
 
@@ -315,7 +319,7 @@ void CloseAllOrders()
          }
          if (_ticket > 0)
          {
-            Print("Closed all orders.");
+            Print("Order closed");
          }
          else
          {
@@ -324,4 +328,30 @@ void CloseAllOrders()
       }
    }
    ObjectSetInteger(0, BUTTONID3, OBJPROP_STATE, false);
+   Print("Closed all orders");
+}
+
+void BreakEven(int offset)
+{
+   int total = OrdersTotal();
+   double _openPrice, _stoploss = 0;
+
+   for (int pos = 0; pos < total; pos++)
+   {
+      if (OrderSelect(pos, SELECT_BY_POS))
+      {
+         _openPrice = OrderOpenPrice();
+         _stoploss = NormalizeDouble(_openPrice + offset * _Point, _Digits);
+         if (OrderModify(OrderTicket(), OrderOpenPrice(), _stoploss, OrderTakeProfit(), 0))
+         {
+            Print("Stoploss modified");
+         }
+         else
+         {
+            Print("Error = ", GetLastError());
+         }
+      }
+   }
+   ObjectSetInteger(0, BUTTONID4, OBJPROP_STATE, false);
+   Print("Modified all orders");
 }
