@@ -10,6 +10,7 @@ input double inpBuyLots = 1.0;                            // Number of lots to b
 input double inpStopLoss = 1500.0;                        // Buy stop loss level
 input double inpTakeProfit = 1500.0;                      // Buy take profit level
 input int inpBuySlippage = 0;                             // Buy slippage value
+input int inpMaxNumberOfBuyOrders = 2;                    // Maximum number of opened buy orders
 
 input double inpSellLots = 1.0;                           // Number of lots to sell
 input int inpSellSlippage = 0;                            // Sell slippage value
@@ -195,7 +196,17 @@ void OnChartEvent(const int id,
 {
    if (sparam == BUYBUTTONID)
    {
-      OpenOrder(inpBuyLots, inpStopLoss, inpTakeProfit, inpBuySlippage);
+      int openOrders = CountOpenOrders(OP_BUY);
+      if (openOrders <= inpMaxNumberOfBuyOrders)
+      {
+         OpenOrder(inpBuyLots, inpStopLoss, inpTakeProfit, inpBuySlippage);
+      }
+      else
+      {
+         Print("Maximum number of opened orders has been reached!");
+      }
+      
+      
    }
    if (sparam == SELLBUTTONID)
    {
@@ -228,7 +239,7 @@ void OpenOrder(double lots, double stopLoss, double takeProfit, int slippage)
    int _ticket = 0;
    int _error = 0;
    double _stoploss = NormalizeDouble((Bid - stopLoss) * Point, _Digits);
-   double _takeprofit = NormalizeDouble((Bid + takeProfit) * Point, _Digits);   
+   double _takeprofit = NormalizeDouble((Bid + takeProfit) * Point, _Digits);
    _ticket = OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, _stoploss, _takeprofit);
    if (_ticket > 0)
    {
@@ -273,4 +284,24 @@ void CloseOrder(double lots, double stopLoss, double takeProfit, int slippage)
       _error = GetLastError();
       Print("Error = ", ErrorDescription(_error));
    }
+}
+
+int CountOpenOrders(int orderType)
+{
+   int type;
+   int count = 0;
+   int total = OrdersTotal();
+
+   for (int pos = 0; pos < total; pos++)
+   {
+      if (OrderSelect(pos, SELECT_BY_POS))
+      {
+         type = OrderType();
+         if (type == orderType)
+         {
+            count++;
+         }
+      }
+   }
+   return count;
 }
