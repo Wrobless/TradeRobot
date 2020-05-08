@@ -200,7 +200,7 @@ void OnChartEvent(const int id,
    if (sparam == BUYBUTTONID)
    {
       int openOrders = CountOpenOrders(OP_BUY);
-      if (openOrders <= inpMaxNumberOfBuyOrders)
+      if (openOrders < inpMaxNumberOfBuyOrders)
       {
          OpenOrder(inpBuyLots, inpBuyStopLoss, inpBuyTakeProfit, inpBuySlippage);
       }
@@ -212,7 +212,7 @@ void OnChartEvent(const int id,
    if (sparam == SELLBUTTONID)
    {
       int openOrders = CountOpenOrders(OP_SELL);
-      if (openOrders <= inpMaxNumberOfSellOrders)
+      if (openOrders < inpMaxNumberOfSellOrders)
       {
          CloseOrder(inpSellLots, inpSellStopLoss, inpSellTakeProfit, inpSellSlippage);
       }
@@ -248,8 +248,8 @@ void OpenOrder(double lots, double stopLoss, double takeProfit, int slippage)
    int _ticket = 0;
    int _error = 0;
    RefreshRates();
-   double _stoploss = NormalizeDouble((Bid - stopLoss) * Point, _Digits);
-   double _takeprofit = NormalizeDouble((Bid + takeProfit) * Point, _Digits);
+   double _stoploss = NormalizeDouble(Bid - stopLoss * Point, _Digits);
+   double _takeprofit = NormalizeDouble(Bid + takeProfit * Point, _Digits);
    _ticket = OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, _stoploss, _takeprofit);
    if (_ticket > 0)
    {
@@ -275,8 +275,8 @@ void CloseOrder(double lots, double stopLoss, double takeProfit, int slippage)
    int _ticket = 0;
    int _error = 0;
    RefreshRates();
-   double _stoploss = NormalizeDouble((Ask + stopLoss) * Point, _Digits);
-   double _takeprofit = NormalizeDouble((Ask - takeProfit) * Point, _Digits);
+   double _stoploss = NormalizeDouble(Ask + stopLoss * Point, _Digits);
+   double _takeprofit = NormalizeDouble(Ask - takeProfit * Point, _Digits);
    _ticket = OrderSend(Symbol(), OP_SELL, lots, Bid, slippage, _stoploss, _takeprofit);
    if (_ticket > 0)
    {
