@@ -6,17 +6,11 @@
 #property script_show_inputs
 
 //--- input parameters
-input double inpBuyLots = 1.0;                            // Number of lots to buy
-input double inpBuyStopLoss = 1500.0;                     // Buy stop loss level
-input double inpBuyTakeProfit = 1500.0;                   // Buy take profit level
-input int inpBuySlippage = 0;                             // Buy slippage value
-input int inpMaxNumberOfBuyOrders = 2;                    // Maximum number of opened buy orders
-
-input double inpSellLots = 1.0;                           // Number of lots to sell
-input double inpSellStopLoss = 1500.0;                    // Sell stop loss level
-input double inpSellTakeProfit = 1500.0;                  // Sell take profit level
-input int inpSellSlippage = 0;                            // Sell slippage value
-input int inpMaxNumberOfSellOrders = 2;                   // Maximum number of opened sell orders
+input double inpLots = 1.0;                               // Number of lots
+input double inpStopLoss = 1500.0;                        // Stop loss level
+input double inpTakeProfit = 1500.0;                      // Take profit level
+input int inpSlippage = 0;                                // Slippage value
+input int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
 
 input ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;    // Chart corner for anchoring
 input int inpButtonWidth = 120;                           // Button width
@@ -200,9 +194,9 @@ void OnChartEvent(const int id,
    if (sparam == BUYBUTTONID)
    {
       int openOrders = CountOpenOrders(OP_BUY);
-      if (openOrders < inpMaxNumberOfBuyOrders)
+      if (openOrders < inpMaxNumberOfOrders)
       {
-         BuyOrder(inpBuyLots, inpBuyStopLoss, inpBuyTakeProfit, inpBuySlippage);
+         BuyOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
       }
       else
       {
@@ -212,9 +206,9 @@ void OnChartEvent(const int id,
    if (sparam == SELLBUTTONID)
    {
       int openOrders = CountOpenOrders(OP_SELL);
-      if (openOrders < inpMaxNumberOfSellOrders)
+      if (openOrders < inpMaxNumberOfOrders)
       {
-         SellOrder(inpSellLots, inpSellStopLoss, inpSellTakeProfit, inpSellSlippage);
+         SellOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
       }
       else
       {
