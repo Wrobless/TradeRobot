@@ -202,7 +202,7 @@ void OnChartEvent(const int id,
       int openOrders = CountOpenOrders(OP_BUY);
       if (openOrders < inpMaxNumberOfBuyOrders)
       {
-         OpenOrder(inpBuyLots, inpBuyStopLoss, inpBuyTakeProfit, inpBuySlippage);
+         BuyOrder(inpBuyLots, inpBuyStopLoss, inpBuyTakeProfit, inpBuySlippage);
       }
       else
       {
@@ -214,13 +214,18 @@ void OnChartEvent(const int id,
       int openOrders = CountOpenOrders(OP_SELL);
       if (openOrders < inpMaxNumberOfSellOrders)
       {
-         CloseOrder(inpSellLots, inpSellStopLoss, inpSellTakeProfit, inpSellSlippage);
+         SellOrder(inpSellLots, inpSellStopLoss, inpSellTakeProfit, inpSellSlippage);
       }
       else
       {
          Print("Maximum number of opened orders has been reached!");
       }
    }
+   if (sparam == CLOSEBUTTONID)
+   {
+      CloseAllOrders();
+   }
+   
 }
 
 long GetWindowWidth()
@@ -243,7 +248,7 @@ long GetWindowHeight()
    return height;
 }
 
-void OpenOrder(double lots, double stopLoss, double takeProfit, int slippage)
+void BuyOrder(double lots, double stopLoss, double takeProfit, int slippage)
 {
    int _ticket = 0;
    int _error = 0;
@@ -255,7 +260,8 @@ void OpenOrder(double lots, double stopLoss, double takeProfit, int slippage)
    {
       if (OrderSelect(_ticket, SELECT_BY_TICKET) == true)
       {
-         Print("Order open price is ", OrderOpenPrice());
+         ObjectSetInteger(0,BUYBUTTONID, OBJPROP_STATE, false);
+         Print("Buy order price is ", OrderOpenPrice());
       }
       else
       {
@@ -270,7 +276,7 @@ void OpenOrder(double lots, double stopLoss, double takeProfit, int slippage)
    }
 }
 
-void CloseOrder(double lots, double stopLoss, double takeProfit, int slippage)
+void SellOrder(double lots, double stopLoss, double takeProfit, int slippage)
 {
    int _ticket = 0;
    int _error = 0;
@@ -282,7 +288,8 @@ void CloseOrder(double lots, double stopLoss, double takeProfit, int slippage)
    {
       if (OrderSelect(_ticket, SELECT_BY_TICKET) == true)
       {
-         Print("Order close price is ", OrderClosePrice());
+         ObjectSetInteger(0, SELLBUTTONID, OBJPROP_STATE, false);
+         Print("Sell order price is ", OrderOpenPrice());
       }
       else
       {
@@ -315,4 +322,31 @@ int CountOpenOrders(int orderType)
       }
    }
    return count;
+}
+
+void CloseAllOrders()
+{
+   int _ticket = 0;
+   int total = OrdersTotal();
+
+   for (int pos = total; pos >= 0; pos--)
+   {
+      if (OrderSelect(pos, SELECT_BY_POS) && OrderSymbol() == _Symbol)
+      {
+         if (OrderType() == OP_BUY || OrderType() == OP_SELL)
+         {
+            _ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_ASK), 0);
+            _ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_BID), 0);
+         }
+         if (_ticket > 0)
+         {
+            Print("Closed all orders.");
+         }
+         else
+         {
+            Print("Error = ", GetLastError());
+         }
+      }
+   }
+   ObjectSetInteger(0, CLOSEBUTTONID, OBJPROP_STATE, false);
 }
