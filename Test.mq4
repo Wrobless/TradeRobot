@@ -8,30 +8,30 @@
 //--- input parameters
 input double inpLots = 1.0;                               // Number of lots
 input double inpStopLoss = 1500.0;                        // Stop loss level
-input double inpTakeProfit = 1500.0;                      // Take profit level
+input double inpTakeProfit = 4500.0;                      // Take profit level
 input int inpSlippage = 0;                                // Slippage value
 input int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
-input int inpBreakEvenOffset = 0;                         // BreakEven offset value
+input int inpBreakEvenOffset = -100;                         // BreakEven offset value
 
 input ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;    // Chart corner for anchoring
-input int inpButtonWidth = 120;                           // Button width
-input int inpButtonHeight = 20;                           // Button height
+input int inpButtonWidth = 80;                            // Button width
+input int inpButtonHeight = 30;                           // Button height
 input int inpButtonSpacing = 5;                           // Spaces between buttons
 input int inpBackgroundMargin = 10;                       // Background margin
 input int inpBackgroundPositionXOffset = 0;               // Background position X offset
 input int inpBackgroundPositionYOffset = -10;             // Background position Y offset
 
-input color inpBackgroundBackColor = clrGray;             // Background color
-input ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
-input color inpBackgroundBorderColor = clrDarkGray;       // Flat border color (Flat)
-input ENUM_LINE_STYLE inpBackgroundStyle = STYLE_SOLID;   // Flat border style (Flat)
-input int inpBackgroundLineWidth = 3;                     // Flat border width (Flat)
-input bool inpBackgroundHidden = true;                    // Hidden in the object list
-input long inpBackgroundZOrder = 0;                       // Priority for mouse click
+// input color inpBackgroundBackColor = clrGray;             // Background color
+// input ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
+// input color inpBackgroundBorderColor = clrDarkGray;       // Flat border color (Flat)
+// input ENUM_LINE_STYLE inpBackgroundStyle = STYLE_SOLID;   // Flat border style (Flat)
+// input int inpBackgroundLineWidth = 3;                     // Flat border width (Flat)
+// input bool inpBackgroundHidden = true;                    // Hidden in the object list
+// input long inpBackgroundZOrder = 0;                       // Priority for mouse click
 
 input string inpBuyText = "BUY";                          // Buy button text
 input string inpBuyFont = "Arial";                        // Buy button font
-input int inpBuyFontSize = 12;                            // Buy button font size
+input int inpBuyFontSize = 10;                            // Buy button font size
 input color inpBuyColor = clrWhiteSmoke;                  // Buy button text color
 input color inpBuyBackColor = clrGreen;                   // Buy button background color
 input color inpBuyBorderColor = clrNONE;                  // Buy button border color
@@ -41,7 +41,7 @@ input long inpBuyZOrder = 0;                              // Buy button priority
 
 input string inpSellText = "SELL";                        // Sell button text
 input string inpSellFont = "Arial";                       // Sell button font
-input int inpSellFontSize = 12;                           // Sell button font size
+input int inpSellFontSize = 10;                           // Sell button font size
 input color inpSellColor = clrWhiteSmoke;                 // Sell button text color
 input color inpSellBackColor = clrRed;                    // Sell button background color
 input color inpSellBorderColor = clrNONE;                 // Sell button border color
@@ -51,17 +51,17 @@ input long inpSellZOrder = 0;                             // Sell button priorit
 
 input string inpCloseText = "CLOSE ALL";                  // Close button text
 input string inpCloseFont = "Arial";                      // Close button font
-input int inpCloseFontSize = 12;                          // Close button font size
+input int inpCloseFontSize = 10;                          // Close button font size
 input color inpCloseColor = clrWhiteSmoke;                // Close button text color
-input color inpCloseBackColor = clrBlue;                  // Close button background color
+input color inpCloseBackColor = clrDeepSkyBlue;           // Close button background color
 input color inpCloseBorderColor = clrNONE;                // Close button border color
 input bool inpCloseState = false;                         // Close button pressed/Released
 input bool inpCloseHidden = true;                         // Close button hidden in the object list
 input long inpCloseZOrder = 0;                            // Close button priority for mouse click
 
-input string inpBreakEvenText = "BREAK EVEN";             // BreakEven button text
+input string inpBreakEvenText = "BE";                     // BreakEven button text
 input string inpBreakEvenFont = "Arial";                  // BreakEven button font
-input int inpBreakEvenFontSize = 12;                      // BreakEven button font size
+input int inpBreakEvenFontSize = 10;                      // BreakEven button font size
 input color inpBreakEvenColor = clrWhiteSmoke;            // BreakEven button text color
 input color inpBreakEvenBackColor = clrLimeGreen;         // BreakEven button background color
 input color inpBreakEvenBorderColor = clrNONE;            // BreakEven button border color
@@ -71,7 +71,7 @@ input long inpBreakEvenZOrder = 0;                        // BreakEven button pr
 
 input string inpSLDownText = "";                          // SLDown button text
 input string inpSLDownFont = "Arial";                     // SLDown button font
-input int inpSLDownFontSize = 12;                         // SLDown button font size
+input int inpSLDownFontSize = 10;                         // SLDown button font size
 input color inpSLDownColor = clrWhiteSmoke;               // SLDown button text color
 input color inpSLDownBackColor = clrDarkOrange;           // SLDown button background color
 input color inpSLDownBorderColor = clrNONE;               // SLDown button border color
@@ -79,15 +79,15 @@ input bool inpSLDownState = false;                        // SLDown button press
 input bool inpSLDownHidden = true;                        // SLDown button hidden in the object list
 input long inpSLDownZOrder = 0;                           // SLDown button priority for mouse click
 
-input string inpSwapOrderText = "";                       // SwapOrder button text
-input string inpSwapOrderFont = "Arial";                  // SwapOrder button font
-input int inpSwapOrderFontSize = 12;                      // SwapOrder button font size
-input color inpSwapOrderColor = clrWhiteSmoke;            // SwapOrder button text color
-input color inpSwapOrderBackColor = clrPurple;            // SwapOrder button background color
-input color inpSwapOrderBorderColor = clrNONE;            // SwapOrder button border color
-input bool inpSwapOrderState = false;                     // SwapOrder button pressed/Released
-input bool inpSwapOrderHidden = true;                     // SwapOrder button hidden in the object list
-input long inpSwapOrderZOrder = 0;                        // SwapOrder button priority for mouse click
+// input string inpSwapOrderText = "";                       // SwapOrder button text
+// input string inpSwapOrderFont = "Arial";                  // SwapOrder button font
+// input int inpSwapOrderFontSize = 10;                      // SwapOrder button font size
+// input color inpSwapOrderColor = clrWhiteSmoke;            // SwapOrder button text color
+// input color inpSwapOrderBackColor = clrPurple;            // SwapOrder button background color
+// input color inpSwapOrderBorderColor = clrNONE;            // SwapOrder button border color
+// input bool inpSwapOrderState = false;                     // SwapOrder button pressed/Released
+// input bool inpSwapOrderHidden = true;                     // SwapOrder button hidden in the object list
+// input long inpSwapOrderZOrder = 0;                        // SwapOrder button priority for mouse click
 
 const string BACKGROUNDID = "Background";
 const string BUTTONID1 = "BuyButton";
@@ -109,13 +109,13 @@ int OnInit()
 {
    long windowWidth = GetWindowWidth();
    long windowHeight = GetWindowHeight();
-   int numberOfButtons = 6;
+   int numberOfButtons = 5;
    int xBackgroundPosition = (int)(windowWidth / 8) + inpBackgroundPositionXOffset + inpBackgroundMargin;
    int yBackgroundPosition = (int)(windowHeight / 16) + inpBackgroundPositionYOffset;
    
-   CreateBackground(BACKGROUNDID, xBackgroundPosition, yBackgroundPosition, inpBackgroundBackColor, inpBackgroundBorder, inpCorner, inpBackgroundBorderColor, 
-                  inpBackgroundStyle, inpBackgroundLineWidth, backgroundMoveToBack, backgroundSelection, inpBackgroundHidden, inpBackgroundZOrder, 
-                  numberOfButtons, inpButtonWidth, inpButtonHeight, inpButtonSpacing, inpBackgroundMargin);
+   // CreateBackground(BACKGROUNDID, xBackgroundPosition, yBackgroundPosition, inpBackgroundBackColor, inpBackgroundBorder, inpCorner, inpBackgroundBorderColor, 
+   //                inpBackgroundStyle, inpBackgroundLineWidth, backgroundMoveToBack, backgroundSelection, inpBackgroundHidden, inpBackgroundZOrder, 
+   //                numberOfButtons, inpButtonWidth, inpButtonHeight, inpButtonSpacing, inpBackgroundMargin);
 
    int xBuyButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int yBuyButtonPosition = yBackgroundPosition + inpBackgroundMargin;
@@ -147,12 +147,12 @@ int OnInit()
    CreateButton(BUTTONID5, xSLDownButtonPosition, ySLDownButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSLDownText, inpSLDownFont, inpSLDownFontSize, 
                inpSLDownColor, inpSLDownBackColor, inpSLDownBorderColor, inpSLDownState, buttonMoveToBack, buttonSelection, inpSLDownHidden, inpSLDownZOrder);
 
-   int xSwapOrderButtonPosition = xBackgroundPosition - inpBackgroundMargin;
-   int ySwapOrderButtonPosition = ySLDownButtonPosition + inpButtonHeight + inpButtonSpacing;
+   // int xSwapOrderButtonPosition = xBackgroundPosition - inpBackgroundMargin;
+   // int ySwapOrderButtonPosition = ySLDownButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(BUTTONID6, xSwapOrderButtonPosition, ySwapOrderButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSwapOrderText, inpSwapOrderFont, 
-               inpSwapOrderFontSize, inpSwapOrderColor, inpSwapOrderBackColor, inpSwapOrderBorderColor, inpSwapOrderState, buttonMoveToBack, 
-               buttonSelection, inpSwapOrderHidden, inpSwapOrderZOrder);
+   // CreateButton(BUTTONID6, xSwapOrderButtonPosition, ySwapOrderButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSwapOrderText, inpSwapOrderFont, 
+   //             inpSwapOrderFontSize, inpSwapOrderColor, inpSwapOrderBackColor, inpSwapOrderBorderColor, inpSwapOrderState, buttonMoveToBack, 
+   //             buttonSelection, inpSwapOrderHidden, inpSwapOrderZOrder);
 
    ChartRedraw(0);
    return (INIT_SUCCEEDED);
