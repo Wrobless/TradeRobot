@@ -13,12 +13,11 @@ input int inpSlippage = 0;                                // Slippage value
 input int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
 input int inpBreakEvenOffset = -100;                         // BreakEven offset value
 
-input ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;    // Chart corner for anchoring
 input int inpButtonWidth = 80;                            // Button width
 input int inpButtonHeight = 30;                           // Button height
 input int inpButtonSpacing = 5;                           // Spaces between buttons
 input int inpBackgroundMargin = 10;                       // Background margin
-input int inpBackgroundPositionXOffset = 0;               // Background position X offset
+input int inpBackgroundPositionXOffset = -30;               // Background position X offset
 input int inpBackgroundPositionYOffset = -10;             // Background position Y offset
 
 // input color inpBackgroundBackColor = clrGray;             // Background color
@@ -69,15 +68,15 @@ input bool inpBreakEvenState = false;                     // BreakEven button pr
 input bool inpBreakEvenHidden = true;                     // BreakEven button hidden in the object list
 input long inpBreakEvenZOrder = 0;                        // BreakEven button priority for mouse click
 
-input string inpSLDownText = "";                          // SLDown button text
-input string inpSLDownFont = "Arial";                     // SLDown button font
-input int inpSLDownFontSize = 10;                         // SLDown button font size
-input color inpSLDownColor = clrWhiteSmoke;               // SLDown button text color
-input color inpSLDownBackColor = clrDarkOrange;           // SLDown button background color
-input color inpSLDownBorderColor = clrNONE;               // SLDown button border color
-input bool inpSLDownState = false;                        // SLDown button pressed/Released
-input bool inpSLDownHidden = true;                        // SLDown button hidden in the object list
-input long inpSLDownZOrder = 0;                           // SLDown button priority for mouse click
+input string inpMoveSLText = "MOVE SL";                   // MoveSL button text
+input string inpMoveSLFont = "Arial";                     // MoveSL button font
+input int inpMoveSLFontSize = 10;                         // MoveSL button font size
+input color inpMoveSLColor = clrWhiteSmoke;               // MoveSL button text color
+input color inpMoveSLBackColor = clrDarkOrange;           // MoveSL button background color
+input color inpMoveSLBorderColor = clrNONE;               // MoveSL button border color
+input bool inpMoveSLState = false;                        // MoveSL button pressed/Released
+input bool inpMoveSLHidden = true;                        // MoveSL button hidden in the object list
+input long inpMoveSLZOrder = 0;                           // MoveSL button priority for mouse click
 
 // input string inpSwapOrderText = "";                       // SwapOrder button text
 // input string inpSwapOrderFont = "Arial";                  // SwapOrder button font
@@ -89,19 +88,25 @@ input long inpSLDownZOrder = 0;                           // SLDown button prior
 // input bool inpSwapOrderHidden = true;                     // SwapOrder button hidden in the object list
 // input long inpSwapOrderZOrder = 0;                        // SwapOrder button priority for mouse click
 
+const ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;       // Chart corner for anchoring
+
 const string BACKGROUNDID = "Background";
 const string BUTTONID1 = "BuyButton";
 const string BUTTONID2 = "SellButton";
 const string BUTTONID3 = "CloseButton";
 const string BUTTONID4 = "BreakEvenButton";
-const string BUTTONID5 = "SLDownButton";
-const string BUTTONID6 = "SwapOrderButton";
+const string BUTTONID5 = "MoveSLButton";
+const string BUTTONID6 = "";
 
 bool backgroundMoveToBack = false;
 bool backgroundSelection = false;
 bool buttonSelection = false;
 bool buttonMoveToBack = false;
 
+int xMoveSLButtonPosition;
+int yMoveSLButtonPosition;
+
+bool flag = false;
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -141,14 +146,14 @@ int OnInit()
    CreateButton(BUTTONID4, xBreakEvenButtonPosition, yBreakEvenButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpBreakEvenText, inpBreakEvenFont, inpBreakEvenFontSize, 
                inpBreakEvenColor, inpBreakEvenBackColor, inpBreakEvenBorderColor, inpBreakEvenState, buttonMoveToBack, buttonSelection, inpBreakEvenHidden, inpBreakEvenZOrder);
 
-   int xSLDownButtonPosition = xBackgroundPosition - inpBackgroundMargin;
-   int ySLDownButtonPosition = yBreakEvenButtonPosition + inpButtonHeight + inpButtonSpacing;
+   xMoveSLButtonPosition = xBackgroundPosition - inpBackgroundMargin;
+   yMoveSLButtonPosition = yBreakEvenButtonPosition + inpButtonHeight + inpButtonSpacing;
 
-   CreateButton(BUTTONID5, xSLDownButtonPosition, ySLDownButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSLDownText, inpSLDownFont, inpSLDownFontSize, 
-               inpSLDownColor, inpSLDownBackColor, inpSLDownBorderColor, inpSLDownState, buttonMoveToBack, buttonSelection, inpSLDownHidden, inpSLDownZOrder);
+   CreateButton(BUTTONID5, xMoveSLButtonPosition, yMoveSLButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpMoveSLText, inpMoveSLFont, inpMoveSLFontSize, 
+               inpMoveSLColor, inpMoveSLBackColor, inpMoveSLBorderColor, inpMoveSLState, buttonMoveToBack, buttonSelection, inpMoveSLHidden, inpMoveSLZOrder);
 
    // int xSwapOrderButtonPosition = xBackgroundPosition - inpBackgroundMargin;
-   // int ySwapOrderButtonPosition = ySLDownButtonPosition + inpButtonHeight + inpButtonSpacing;
+   // int ySwapOrderButtonPosition = yMoveSLButtonPosition + inpButtonHeight + inpButtonSpacing;
 
    // CreateButton(BUTTONID6, xSwapOrderButtonPosition, ySwapOrderButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSwapOrderText, inpSwapOrderFont, 
    //             inpSwapOrderFontSize, inpSwapOrderColor, inpSwapOrderBackColor, inpSwapOrderBorderColor, inpSwapOrderState, buttonMoveToBack, 
@@ -162,6 +167,7 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
+   ObjectsDeleteAll();
 }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
@@ -177,48 +183,79 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
 {
-   if (sparam == BUTTONID1)
+   //Comment(__FUNCTION__,": id=",id," lparam=",lparam," dparam=",dparam," sparam=",sparam);
+   if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID1)
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-      {
          BuyOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
-      }
       else
-      {
          Print("Maximum number of opened orders has been reached!");
-      }
    }
-   if (sparam == BUTTONID2)
+   if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID2)
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-      {
          SellOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
-      }
       else
-      {
          Print("Maximum number of opened orders has been reached!");
-      }
    }
-   if (sparam == BUTTONID3)
-   {
+   if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID3)
       CloseAllOrders();
-   }
-   if (sparam == BUTTONID4)
-   {
+   if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID4)
       BreakEven(inpBreakEvenOffset);
-   }
-   
+   if (id == CHARTEVENT_CLICK && sparam != BUTTONID5)
+   {
+      long pressed = 0;
+      ObjectGetInteger(0, BUTTONID5, OBJPROP_STATE, 0, pressed);
+      if ((bool)pressed && IsLegal((int)lparam, (int)dparam, BUTTONID5))
+      {
+         int x = (int)lparam;
+         int y = (int)dparam;
+         datetime dt = 0;
+         double price = 0;
+         int window = 0;
+         double stopLoss = 0;
+         int total = OrdersTotal();
+         double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
+
+         if (ChartXYToTimePrice(0, x, y, window, dt, price))
+         {
+            stopLoss = NormalizeDouble(price, _Digits);
+            if (stopLoss < stopLevel)
+            stopLoss = stopLevel;
+            Print("Price = ", price, " Stoploss = ", stopLoss, " StopLevel = ", stopLevel);
+
+            for (int pos = 0; pos < total; pos++)
+            {
+               if (OrderSelect(pos, SELECT_BY_POS))
+               {
+                  if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
+                  {
+                     Print("Stoploss modified");
+                  }
+                  else
+                  {
+                     Print("Error = ", GetLastError());
+                  }
+               }
+            }
+         }
+         else
+         {
+            Print("Error in conversion of mouse position to price");
+         }
+         ObjectSetInteger(0, BUTTONID5, OBJPROP_STATE, false);
+         Print("Moved all SLs to mouse position");
+      } 
+   } 
 }
 
 long GetWindowWidth()
 {
    long width = 0;
    if (!ChartGetInteger(0, CHART_WIDTH_IN_PIXELS, 0, width))
-   {
       Print("Failed to get the chart width! Error code = ", GetLastError());
-   }
    return width;   
 }
 
@@ -226,65 +263,69 @@ long GetWindowHeight()
 {
    long height = 0;
    if (!ChartGetInteger(0, CHART_HEIGHT_IN_PIXELS, 0, height))
-   {
       Print("Failed to get the chart width! Error code = ", GetLastError());
-   }
    return height;
 }
 
 void BuyOrder(double lots, double stopLoss, double takeProfit, int slippage)
 {
-   int _ticket = 0;
-   int _error = 0;
+   int ticket = 0;
+   int error = 0;
    RefreshRates();
-   double _stoploss = NormalizeDouble(Bid - stopLoss * Point, _Digits);
-   double _takeprofit = NormalizeDouble(Bid + takeProfit * Point, _Digits);
-   _ticket = OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, _stoploss, _takeprofit);
-   if (_ticket > 0)
+   double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
+   double _stopLoss = NormalizeDouble(Bid - stopLoss * Point, _Digits);
+   double _takeProfit = NormalizeDouble(Bid + takeProfit * Point, _Digits);
+   if (_stopLoss < stopLevel)
+      _stopLoss = stopLevel;
+   if (_takeProfit < stopLevel)
+      _takeProfit = stopLevel;
+   ticket = OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, _stopLoss, _takeProfit);
+   if (ticket > 0)
    {
-      if (OrderSelect(_ticket, SELECT_BY_TICKET) == true)
+      if (OrderSelect(ticket, SELECT_BY_TICKET) == true)
       {
          ObjectSetInteger(0,BUTTONID1, OBJPROP_STATE, false);
          Print("Buy order price is ", OrderOpenPrice());
       }
       else
-      {
          Print("Error = ", GetLastError());
-      }
       OrderPrint();
    }
    else
    {
-      _error = GetLastError();
-      Print("Error = ", ErrorDescription(_error));
+      error = GetLastError();
+      Print("Error = ", ErrorDescription(error));
    }
 }
 
 void SellOrder(double lots, double stopLoss, double takeProfit, int slippage)
 {
-   int _ticket = 0;
-   int _error = 0;
+   int ticket = 0;
+   int error = 0;
    RefreshRates();
-   double _stoploss = NormalizeDouble(Ask + stopLoss * Point, _Digits);
-   double _takeprofit = NormalizeDouble(Ask - takeProfit * Point, _Digits);
-   _ticket = OrderSend(Symbol(), OP_SELL, lots, Bid, slippage, _stoploss, _takeprofit);
-   if (_ticket > 0)
+   double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
+   double _stopLoss = NormalizeDouble(Ask + stopLoss * Point, _Digits);
+   double _takeProfit = NormalizeDouble(Ask - takeProfit * Point, _Digits);
+   if (_stopLoss < stopLevel)
+      _stopLoss = stopLevel;
+   if (_takeProfit < stopLevel)
+      _takeProfit = stopLevel;
+   ticket = OrderSend(Symbol(), OP_SELL, lots, Bid, slippage, _stopLoss, _takeProfit);
+   if (ticket > 0)
    {
-      if (OrderSelect(_ticket, SELECT_BY_TICKET) == true)
+      if (OrderSelect(ticket, SELECT_BY_TICKET) == true)
       {
          ObjectSetInteger(0, BUTTONID2, OBJPROP_STATE, false);
          Print("Sell order price is ", OrderOpenPrice());
       }
       else
-      {
          Print("Error = ", GetLastError());
-      }
       OrderPrint();
    }
    else
    {
-      _error = GetLastError();
-      Print("Error = ", ErrorDescription(_error));
+      error = GetLastError();
+      Print("Error = ", ErrorDescription(error));
    }
 }
 
@@ -296,16 +337,14 @@ int CountOpenOrders()
    for (int pos = 0; pos < total; pos++)
    {
       if (OrderSelect(pos, SELECT_BY_POS))
-      {
          count++;
-      }
    }
    return count;
 }
 
 void CloseAllOrders()
 {
-   int _ticket = 0;
+   int ticket = 0;
    int total = OrdersTotal();
 
    for (int pos = total; pos >= 0; pos--)
@@ -314,17 +353,13 @@ void CloseAllOrders()
       {
          if (OrderType() == OP_BUY || OrderType() == OP_SELL)
          {
-            _ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_ASK), 0);
-            _ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_BID), 0);
+            ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_ASK), 0);
+            ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_BID), 0);
          }
-         if (_ticket > 0)
-         {
+         if (ticket > 0)
             Print("Order closed");
-         }
          else
-         {
             Print("Error = ", GetLastError());
-         }
       }
    }
    ObjectSetInteger(0, BUTTONID3, OBJPROP_STATE, false);
@@ -334,24 +369,37 @@ void CloseAllOrders()
 void BreakEven(int offset)
 {
    int total = OrdersTotal();
-   double _openPrice, _stoploss = 0;
+   double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
+   double openPrice, stopLoss = 0;
 
    for (int pos = 0; pos < total; pos++)
    {
       if (OrderSelect(pos, SELECT_BY_POS))
       {
-         _openPrice = OrderOpenPrice();
-         _stoploss = NormalizeDouble(_openPrice + offset * _Point, _Digits);
-         if (OrderModify(OrderTicket(), OrderOpenPrice(), _stoploss, OrderTakeProfit(), 0))
-         {
+         openPrice = OrderOpenPrice();
+         stopLoss = NormalizeDouble(openPrice + (offset * _Point), _Digits);
+         if (stopLoss < stopLevel)
+            stopLoss = stopLevel;
+         if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
             Print("Stoploss modified");
-         }
          else
-         {
             Print("Error = ", GetLastError());
-         }
       }
    }
    ObjectSetInteger(0, BUTTONID4, OBJPROP_STATE, false);
-   Print("Modified all orders");
+}
+
+bool IsLegal(int x, int y, string buttonID)
+{
+   bool result = true;
+   int windowWidth = (int)GetWindowWidth();
+   int buttonX = windowWidth - (int)ObjectGetInteger(0, buttonID, OBJPROP_XDISTANCE);
+   int buttonY = (int)ObjectGetInteger(0, buttonID, OBJPROP_YDISTANCE);
+   int buttonWidth = (int) ObjectGetInteger(0, buttonID, OBJPROP_XSIZE);
+   int buttonHeight = (int)ObjectGetInteger(0, buttonID, OBJPROP_YSIZE);
+
+   if (x >= buttonX && x <= (buttonX + buttonWidth))
+      if (y >= buttonY && y <= (buttonY + buttonHeight))
+         result = false;
+   return result;
 }
