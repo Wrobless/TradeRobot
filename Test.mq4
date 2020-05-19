@@ -11,13 +11,13 @@ input double inpStopLoss = 1500.0;                        // Stop loss level
 input double inpTakeProfit = 4500.0;                      // Take profit level
 input int inpSlippage = 0;                                // Slippage value
 input int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
-input int inpBreakEvenOffset = -100;                         // BreakEven offset value
+input int inpBreakEvenOffset = -100;                      // BreakEven offset value
 
 input int inpButtonWidth = 80;                            // Button width
 input int inpButtonHeight = 30;                           // Button height
 input int inpButtonSpacing = 5;                           // Spaces between buttons
 input int inpBackgroundMargin = 10;                       // Background margin
-input int inpBackgroundPositionXOffset = -30;               // Background position X offset
+input int inpBackgroundPositionXOffset = -30;             // Background position X offset
 input int inpBackgroundPositionYOffset = -10;             // Background position Y offset
 
 // input color inpBackgroundBackColor = clrGray;             // Background color
@@ -183,71 +183,39 @@ void OnChartEvent(const int id,
                   const double &dparam,
                   const string &sparam)
 {
-   //Comment(__FUNCTION__,": id=",id," lparam=",lparam," dparam=",dparam," sparam=",sparam);
    if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID1)
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-         BuyOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
+         OpenOrder(BUTTONID1, OP_BUY, inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
       else
+      {
          Print("Maximum number of opened orders has been reached!");
+         ObjectSetInteger(0, BUTTONID1, OBJPROP_STATE, false);
+      }
    }
+
    if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID2)
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-         SellOrder(inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
+         OpenOrder(BUTTONID2, OP_SELL, inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
       else
+      {
          Print("Maximum number of opened orders has been reached!");
+         ObjectSetInteger(0, BUTTONID2, OBJPROP_STATE, false);
+      }
    }
+
    if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID3)
       CloseAllOrders();
+
    if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID4)
       BreakEven(inpBreakEvenOffset);
+
    if (id == CHARTEVENT_CLICK && sparam != BUTTONID5)
    {
-      long pressed = 0;
-      ObjectGetInteger(0, BUTTONID5, OBJPROP_STATE, 0, pressed);
-      if ((bool)pressed && IsLegal((int)lparam, (int)dparam, BUTTONID5))
-      {
-         int x = (int)lparam;
-         int y = (int)dparam;
-         datetime dt = 0;
-         double price = 0;
-         int window = 0;
-         double stopLoss = 0;
-         int total = OrdersTotal();
-         double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
-
-         if (ChartXYToTimePrice(0, x, y, window, dt, price))
-         {
-            stopLoss = NormalizeDouble(price, _Digits);
-            if (stopLoss < stopLevel)
-            stopLoss = stopLevel;
-            Print("Price = ", price, " Stoploss = ", stopLoss, " StopLevel = ", stopLevel);
-
-            for (int pos = 0; pos < total; pos++)
-            {
-               if (OrderSelect(pos, SELECT_BY_POS))
-               {
-                  if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
-                  {
-                     Print("Stoploss modified");
-                  }
-                  else
-                  {
-                     Print("Error = ", GetLastError());
-                  }
-               }
-            }
-         }
-         else
-         {
-            Print("Error in conversion of mouse position to price");
-         }
-         ObjectSetInteger(0, BUTTONID5, OBJPROP_STATE, false);
-         Print("Moved all SLs to mouse position");
-      } 
+      MoveSL(BUTTONID5, lparam, dparam);
    } 
 }
 
@@ -267,65 +235,42 @@ long GetWindowHeight()
    return height;
 }
 
-void BuyOrder(double lots, double stopLoss, double takeProfit, int slippage)
+void OpenOrder(string buttonID, int cmd, double lots, double stopLoss, double takeProfit, int slippage)
 {
+   RefreshRates();
    int ticket = 0;
    int error = 0;
-   RefreshRates();
-   double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
-   double _stopLoss = NormalizeDouble(Bid - stopLoss * Point, _Digits);
-   double _takeProfit = NormalizeDouble(Bid + takeProfit * Point, _Digits);
-   if (_stopLoss < stopLevel)
-      _stopLoss = stopLevel;
-   if (_takeProfit < stopLevel)
-      _takeProfit = stopLevel;
-   ticket = OrderSend(Symbol(), OP_BUY, lots, Ask, slippage, _stopLoss, _takeProfit);
-   if (ticket > 0)
-   {
-      if (OrderSelect(ticket, SELECT_BY_TICKET) == true)
-      {
-         ObjectSetInteger(0,BUTTONID1, OBJPROP_STATE, false);
-         Print("Buy order price is ", OrderOpenPrice());
-      }
-      else
-         Print("Error = ", GetLastError());
-      OrderPrint();
-   }
-   else
-   {
-      error = GetLastError();
-      Print("Error = ", ErrorDescription(error));
-   }
-}
+   static int orderCount;
+   int price = (cmd == OP_BUY) ? Ask : Bid;
 
-void SellOrder(double lots, double stopLoss, double takeProfit, int slippage)
-{
-   int ticket = 0;
-   int error = 0;
-   RefreshRates();
-   double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
-   double _stopLoss = NormalizeDouble(Ask + stopLoss * Point, _Digits);
-   double _takeProfit = NormalizeDouble(Ask - takeProfit * Point, _Digits);
-   if (_stopLoss < stopLevel)
-      _stopLoss = stopLevel;
-   if (_takeProfit < stopLevel)
-      _takeProfit = stopLevel;
-   ticket = OrderSend(Symbol(), OP_SELL, lots, Bid, slippage, _stopLoss, _takeProfit);
-   if (ticket > 0)
+   double _stopLoss = (cmd == OP_BUY) ? NormalizeDouble(Bid - stopLoss * _Point, _Digits) : NormalizeDouble(Ask + stopLoss * _Point, _Digits);
+   double _takeProfit = (cmd == OP_BUY) ? NormalizeDouble(Bid + takeProfit * _Point, _Digits) : NormalizeDouble(Ask - takeProfit * _Point, _Digits);
+
+   if (!OrderLimit(orderCount))
    {
-      if (OrderSelect(ticket, SELECT_BY_TICKET) == true)
+      ticket = OrderSend(Symbol(), cmd, lots, price, slippage, _stopLoss, _takeProfit);
+   
+      if (ticket > 0)
       {
-         ObjectSetInteger(0, BUTTONID2, OBJPROP_STATE, false);
-         Print("Sell order price is ", OrderOpenPrice());
+         if (OrderSelect(ticket, SELECT_BY_TICKET) == true)
+         {
+            ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
+            OrderPrint();
+            orderCount = OrderCounter();
+         }
+         else
+            Print("Error = ", GetLastError());
       }
       else
-         Print("Error = ", GetLastError());
-      OrderPrint();
+      {
+         error = GetLastError();
+         Print("Error = ", ErrorDescription(error));
+      }
    }
    else
    {
-      error = GetLastError();
-      Print("Error = ", ErrorDescription(error));
+      MessageBox("You've reached order limit (10) for today!", "Warning!");
+      ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
    }
 }
 
@@ -369,7 +314,6 @@ void CloseAllOrders()
 void BreakEven(int offset)
 {
    int total = OrdersTotal();
-   double stopLevel = MarketInfo(_Symbol, MODE_STOPLEVEL) + MarketInfo(_Symbol, MODE_SPREAD);
    double openPrice, stopLoss = 0;
 
    for (int pos = 0; pos < total; pos++)
@@ -378,8 +322,6 @@ void BreakEven(int offset)
       {
          openPrice = OrderOpenPrice();
          stopLoss = NormalizeDouble(openPrice + (offset * _Point), _Digits);
-         if (stopLoss < stopLevel)
-            stopLoss = stopLevel;
          if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
             Print("Stoploss modified");
          else
@@ -402,4 +344,79 @@ bool IsLegal(int x, int y, string buttonID)
       if (y >= buttonY && y <= (buttonY + buttonHeight))
          result = false;
    return result;
+}
+
+bool OrderLimit(int count)
+{
+   const int limit = 10;
+
+   if (count >= limit)
+      return true;
+   else
+      return false;  
+}
+
+int OrderCounter()
+{
+   static int counter;
+
+   if (IsNewDay())
+      counter = 0;
+   else
+      counter++;
+   
+   return counter;
+}
+
+bool IsNewDay()
+{
+   string midnight = "00:00:00";
+   string currentTime = TimeToString(TimeCurrent(), TIME_SECONDS);
+
+   if (currentTime == midnight)
+      return true;
+   else
+      return false;
+}
+
+void MoveSL(string buttonID, double lparam, double dparam)
+{
+   long pressed = 0;
+
+   ObjectGetInteger(0, buttonID, OBJPROP_STATE, 0, pressed);
+   if ((bool)pressed && IsLegal((int)lparam, (int)dparam, buttonID))
+   {
+      int x = (int)lparam;
+      int y = (int)dparam;
+      datetime dt = 0;
+      double price = 0;
+      int window = 0;
+      double stopLoss = 0;
+      int total = OrdersTotal();
+
+      if (ChartXYToTimePrice(0, x, y, window, dt, price))
+      {
+         stopLoss = NormalizeDouble(price, _Digits);
+         for (int pos = 0; pos < total; pos++)
+         {
+            if (OrderSelect(pos, SELECT_BY_POS))
+            {
+               if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
+               {
+                  OrderPrint();
+               }
+               else
+               {
+                  Print("Error = ", GetLastError());
+               }
+            }
+         }
+      }
+      else
+      {
+         Print("Error in conversion of mouse position to price");
+      }
+      ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
+      Print("Moved all SLs to mouse position");
+   } 
 }
