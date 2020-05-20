@@ -100,11 +100,13 @@ CLabel ProfitLabel;
 CLabel PipsLabel;
 CLabel SpreadLabel;
 CLabel SwapLabel;
+CLabel ExpTimeLabel;
 
 string profitLabel = "Profit: ";
 string pipsLabel = "Pips: ";
 string spreadLabel = "Spread: ";
 string swapLabel = "Swap: ";
+string timeLabel = "Nxt bar in: ";
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -150,10 +152,11 @@ int OnInit()
    CreateButton(BUTTONID5, xMoveSLButtonPosition, yMoveSLButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpMoveSLText, inpMoveSLFont, inpMoveSLFontSize, 
                inpMoveSLColor, inpMoveSLBackColor, inpMoveSLBorderColor, inpMoveSLState, buttonMoveToBack, buttonSelection, inpMoveSLHidden, inpMoveSLZOrder);
 
-   CreateTextLabel(ProfitLabel, "label1", profitLabel, 10, 20);
-   CreateTextLabel(PipsLabel, "label2", pipsLabel, 10, 40);
+   CreateTextLabel(PipsLabel, "label1", pipsLabel, 10, 20);
+   CreateTextLabel(ProfitLabel, "label2", profitLabel, 10, 40);
    CreateTextLabel(SpreadLabel, "label3", spreadLabel, 10, 60);
    CreateTextLabel(SwapLabel, "label4", swapLabel, 10, 80);
+   CreateTextLabel(ExpTimeLabel, "label5", timeLabel, 10, 100);
    
    ChartRedraw(0);
    return (INIT_SUCCEEDED);
@@ -171,13 +174,15 @@ void OnDeinit(const int reason)
 void OnTick()
 {
    double profit = AccountInfoDouble(ACCOUNT_PROFIT);
-   string profitValue = DoubleToString(profit, 1);
-   string pipsValue = DoubleToString(GetProfitOpenPosInPoint(), 1);
-   string spreadValue = DoubleToString(MarketInfo(Symbol(), MODE_SPREAD), 1);
-
-   ProfitLabel.Text(profitLabel + profitValue);
+   string profitValue = DoubleToString(profit, 2);
+   string pipsValue = DoubleToString(GetProfitOpenPosInPoint(), 2);
+   string spreadValue = DoubleToString(MarketInfo(Symbol(), MODE_SPREAD), 2);
+   
    PipsLabel.Text(pipsLabel + pipsValue);
+   ProfitLabel.Text(profitLabel + profitValue);
    SpreadLabel.Text(spreadLabel + spreadValue);
+   SwapLabel.Text(swapLabel + GetSwap());
+   ExpTimeLabel.Text(timeLabel + GetTimeToNextBar());
 }
 //+------------------------------------------------------------------+
 //| ChartEvent function                                              |
@@ -455,4 +460,24 @@ double GetProfitOpenPosInPoint(int op = -1, int mn = -1)
         }
      }
    return (profit);
+}
+
+string GetTimeToNextBar()
+{
+   int minutes = (int)(Time[0] + Period() * 60 - TimeCurrent());
+   int seconds = minutes % 60;
+   string _m = "", _s = "";
+   minutes  =  (minutes - seconds) / 60;
+
+   if (minutes < 10) 
+      _m    =  "0";
+   if (seconds < 10)
+      _s    =  "0";
+
+   return StringConcatenate(_m, DoubleToString(minutes, 0), ":", _s, DoubleToString(seconds, 0));
+}
+
+string GetSwap()
+{
+   return StringConcatenate("L: ", DoubleToStr(MarketInfo(Symbol(), MODE_SWAPLONG),2), " | S: ", DoubleToStr(MarketInfo(Symbol(), MODE_SWAPSHORT),2));
 }
