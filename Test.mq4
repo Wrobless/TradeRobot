@@ -1,94 +1,85 @@
 #include <stdlib.mqh>
 #include <button.mqh>
 #include <label.mqh>
+#include <Controls/Label.mqh>
 
 #property strict
 #property script_show_inputs
 
 //--- input parameters
-input double inpLots = 1.0;                               // Number of lots
-input double inpStopLoss = 1500.0;                        // Stop loss level
-input double inpTakeProfit = 4500.0;                      // Take profit level
-input int inpSlippage = 0;                                // Slippage value
-input int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
-input int inpBreakEvenOffset = -100;                      // BreakEven offset value
+extern double inpLot = 1.0;                                // Number of lots
+extern double inpStopLoss = 1500.0;                        // Stop loss level
+extern double inpTakeProfit = 4500.0;                      // Take profit level
+extern int inpSlippage = 0;                                // Slippage value
+extern int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
+extern int inpBreakEvenOffset = 100;                       // BreakEven offset value
 
-input int inpButtonWidth = 80;                            // Button width
-input int inpButtonHeight = 30;                           // Button height
-input int inpButtonSpacing = 5;                           // Spaces between buttons
-input int inpBackgroundMargin = 10;                       // Background margin
-input int inpBackgroundPositionXOffset = -30;             // Background position X offset
-input int inpBackgroundPositionYOffset = -10;             // Background position Y offset
+extern int inpButtonWidth = 80;                            // Button width
+extern int inpButtonHeight = 30;                           // Button height
+extern int inpButtonSpacing = 5;                           // Spaces between buttons
+extern int inpBackgroundMargin = 10;                       // Background margin
+extern int inpBackgroundPositionXOffset = -30;             // Background position X offset
+extern int inpBackgroundPositionYOffset = -10;             // Background position Y offset
 
-// input color inpBackgroundBackColor = clrGray;             // Background color
-// input ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
-// input color inpBackgroundBorderColor = clrDarkGray;       // Flat border color (Flat)
-// input ENUM_LINE_STYLE inpBackgroundStyle = STYLE_SOLID;   // Flat border style (Flat)
-// input int inpBackgroundLineWidth = 3;                     // Flat border width (Flat)
-// input bool inpBackgroundHidden = true;                    // Hidden in the object list
-// input long inpBackgroundZOrder = 0;                       // Priority for mouse click
+// extern color inpBackgroundBackColor = clrGray;             // Background color
+// extern ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
+// extern color inpBackgroundBorderColor = clrDarkGray;       // Flat border color (Flat)
+// extern ENUM_LINE_STYLE inpBackgroundStyle = STYLE_SOLID;   // Flat border style (Flat)
+// extern int inpBackgroundLineWidth = 3;                     // Flat border width (Flat)
+// extern bool inpBackgroundHidden = true;                    // Hidden in the object list
+// extern long inpBackgroundZOrder = 0;                       // Priority for mouse click
 
-input string inpBuyText = "BUY";                          // Buy button text
-input string inpBuyFont = "Arial";                        // Buy button font
-input int inpBuyFontSize = 10;                            // Buy button font size
-input color inpBuyColor = clrWhiteSmoke;                  // Buy button text color
-input color inpBuyBackColor = clrGreen;                   // Buy button background color
-input color inpBuyBorderColor = clrNONE;                  // Buy button border color
-input bool inpBuyState = false;                           // Buy button pressed/Released
-input bool inpBuyHidden = true;                           // Buy button hidden in the object list
-input long inpBuyZOrder = 0;                              // Buy button priority for mouse click
+extern string inpBuyText = "BUY";                          // Buy button text
+extern string inpBuyFont = "Arial";                        // Buy button font
+extern int inpBuyFontSize = 10;                            // Buy button font size
+extern color inpBuyColor = clrWhiteSmoke;                  // Buy button text color
+extern color inpBuyBackColor = clrGreen;                   // Buy button background color
+extern color inpBuyBorderColor = clrNONE;                  // Buy button border color
+extern bool inpBuyState = false;                           // Buy button pressed/Released
+extern bool inpBuyHidden = true;                           // Buy button hidden in the object list
+extern long inpBuyZOrder = 0;                              // Buy button priority for mouse click
 
-input string inpSellText = "SELL";                        // Sell button text
-input string inpSellFont = "Arial";                       // Sell button font
-input int inpSellFontSize = 10;                           // Sell button font size
-input color inpSellColor = clrWhiteSmoke;                 // Sell button text color
-input color inpSellBackColor = clrRed;                    // Sell button background color
-input color inpSellBorderColor = clrNONE;                 // Sell button border color
-input bool inpSellState = false;                          // Sell button pressed/Released
-input bool inpSellHidden = true;                          // Sell button hidden in the object list
-input long inpSellZOrder = 0;                             // Sell button priority for mouse click
+extern string inpSellText = "SELL";                        // Sell button text
+extern string inpSellFont = "Arial";                       // Sell button font
+extern int inpSellFontSize = 10;                           // Sell button font size
+extern color inpSellColor = clrWhiteSmoke;                 // Sell button text color
+extern color inpSellBackColor = clrRed;                    // Sell button background color
+extern color inpSellBorderColor = clrNONE;                 // Sell button border color
+extern bool inpSellState = false;                          // Sell button pressed/Released
+extern bool inpSellHidden = true;                          // Sell button hidden in the object list
+extern long inpSellZOrder = 0;                             // Sell button priority for mouse click
 
-input string inpCloseText = "CLOSE ALL";                  // Close button text
-input string inpCloseFont = "Arial";                      // Close button font
-input int inpCloseFontSize = 10;                          // Close button font size
-input color inpCloseColor = clrWhiteSmoke;                // Close button text color
-input color inpCloseBackColor = clrDeepSkyBlue;           // Close button background color
-input color inpCloseBorderColor = clrNONE;                // Close button border color
-input bool inpCloseState = false;                         // Close button pressed/Released
-input bool inpCloseHidden = true;                         // Close button hidden in the object list
-input long inpCloseZOrder = 0;                            // Close button priority for mouse click
+extern string inpCloseText = "CLOSE ALL";                  // Close button text
+extern string inpCloseFont = "Arial";                      // Close button font
+extern int inpCloseFontSize = 10;                          // Close button font size
+extern color inpCloseColor = clrWhiteSmoke;                // Close button text color
+extern color inpCloseBackColor = clrDeepSkyBlue;           // Close button background color
+extern color inpCloseBorderColor = clrNONE;                // Close button border color
+extern bool inpCloseState = false;                         // Close button pressed/Released
+extern bool inpCloseHidden = true;                         // Close button hidden in the object list
+extern long inpCloseZOrder = 0;                            // Close button priority for mouse click
 
-input string inpBreakEvenText = "BE";                     // BreakEven button text
-input string inpBreakEvenFont = "Arial";                  // BreakEven button font
-input int inpBreakEvenFontSize = 10;                      // BreakEven button font size
-input color inpBreakEvenColor = clrWhiteSmoke;            // BreakEven button text color
-input color inpBreakEvenBackColor = clrLimeGreen;         // BreakEven button background color
-input color inpBreakEvenBorderColor = clrNONE;            // BreakEven button border color
-input bool inpBreakEvenState = false;                     // BreakEven button pressed/Released
-input bool inpBreakEvenHidden = true;                     // BreakEven button hidden in the object list
-input long inpBreakEvenZOrder = 0;                        // BreakEven button priority for mouse click
+extern string inpBreakEvenText = "BE";                     // BreakEven button text
+extern string inpBreakEvenFont = "Arial";                  // BreakEven button font
+extern int inpBreakEvenFontSize = 10;                      // BreakEven button font size
+extern color inpBreakEvenColor = clrWhiteSmoke;            // BreakEven button text color
+extern color inpBreakEvenBackColor = clrLimeGreen;         // BreakEven button background color
+extern color inpBreakEvenBorderColor = clrNONE;            // BreakEven button border color
+extern bool inpBreakEvenState = false;                     // BreakEven button pressed/Released
+extern bool inpBreakEvenHidden = true;                     // BreakEven button hidden in the object list
+extern long inpBreakEvenZOrder = 0;                        // BreakEven button priority for mouse click
 
-input string inpMoveSLText = "MOVE SL";                   // MoveSL button text
-input string inpMoveSLFont = "Arial";                     // MoveSL button font
-input int inpMoveSLFontSize = 10;                         // MoveSL button font size
-input color inpMoveSLColor = clrWhiteSmoke;               // MoveSL button text color
-input color inpMoveSLBackColor = clrDarkOrange;           // MoveSL button background color
-input color inpMoveSLBorderColor = clrNONE;               // MoveSL button border color
-input bool inpMoveSLState = false;                        // MoveSL button pressed/Released
-input bool inpMoveSLHidden = true;                        // MoveSL button hidden in the object list
-input long inpMoveSLZOrder = 0;                           // MoveSL button priority for mouse click
+extern string inpMoveSLText = "MOVE SL";                   // MoveSL button text
+extern string inpMoveSLFont = "Arial";                     // MoveSL button font
+extern int inpMoveSLFontSize = 10;                         // MoveSL button font size
+extern color inpMoveSLColor = clrWhiteSmoke;               // MoveSL button text color
+extern color inpMoveSLBackColor = clrDarkOrange;           // MoveSL button background color
+extern color inpMoveSLBorderColor = clrNONE;               // MoveSL button border color
+extern bool inpMoveSLState = false;                        // MoveSL button pressed/Released
+extern bool inpMoveSLHidden = true;                        // MoveSL button hidden in the object list
+extern long inpMoveSLZOrder = 0;                           // MoveSL button priority for mouse click
 
-// input string inpSwapOrderText = "";                       // SwapOrder button text
-// input string inpSwapOrderFont = "Arial";                  // SwapOrder button font
-// input int inpSwapOrderFontSize = 10;                      // SwapOrder button font size
-// input color inpSwapOrderColor = clrWhiteSmoke;            // SwapOrder button text color
-// input color inpSwapOrderBackColor = clrPurple;            // SwapOrder button background color
-// input color inpSwapOrderBorderColor = clrNONE;            // SwapOrder button border color
-// input bool inpSwapOrderState = false;                     // SwapOrder button pressed/Released
-// input bool inpSwapOrderHidden = true;                     // SwapOrder button hidden in the object list
-// input long inpSwapOrderZOrder = 0;                        // SwapOrder button priority for mouse click
-
-const ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;       // Chart corner for anchoring
+const ENUM_BASE_CORNER inpCorner = CORNER_RIGHT_UPPER;     // Chart corner for anchoring
 
 const string BACKGROUNDID = "Background";
 const string BUTTONID1 = "BuyButton";
@@ -96,7 +87,6 @@ const string BUTTONID2 = "SellButton";
 const string BUTTONID3 = "CloseButton";
 const string BUTTONID4 = "BreakEvenButton";
 const string BUTTONID5 = "MoveSLButton";
-const string BUTTONID6 = "";
 
 bool backgroundMoveToBack = false;
 bool backgroundSelection = false;
@@ -106,7 +96,15 @@ bool buttonMoveToBack = false;
 int xMoveSLButtonPosition;
 int yMoveSLButtonPosition;
 
-bool flag = false;
+CLabel ProfitLabel;
+CLabel PipsLabel;
+CLabel SpreadLabel;
+CLabel SwapLabel;
+
+string profitLabel = "Profit: ";
+string pipsLabel = "Pips: ";
+string spreadLabel = "Spread: ";
+string swapLabel = "Swap: ";
 //+------------------------------------------------------------------+
 //| Expert initialization function                                   |
 //+------------------------------------------------------------------+
@@ -152,13 +150,11 @@ int OnInit()
    CreateButton(BUTTONID5, xMoveSLButtonPosition, yMoveSLButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpMoveSLText, inpMoveSLFont, inpMoveSLFontSize, 
                inpMoveSLColor, inpMoveSLBackColor, inpMoveSLBorderColor, inpMoveSLState, buttonMoveToBack, buttonSelection, inpMoveSLHidden, inpMoveSLZOrder);
 
-   // int xSwapOrderButtonPosition = xBackgroundPosition - inpBackgroundMargin;
-   // int ySwapOrderButtonPosition = yMoveSLButtonPosition + inpButtonHeight + inpButtonSpacing;
-
-   // CreateButton(BUTTONID6, xSwapOrderButtonPosition, ySwapOrderButtonPosition, inpButtonWidth, inpButtonHeight, inpCorner, inpSwapOrderText, inpSwapOrderFont, 
-   //             inpSwapOrderFontSize, inpSwapOrderColor, inpSwapOrderBackColor, inpSwapOrderBorderColor, inpSwapOrderState, buttonMoveToBack, 
-   //             buttonSelection, inpSwapOrderHidden, inpSwapOrderZOrder);
-
+   CreateTextLabel(ProfitLabel, "label1", profitLabel, 10, 20);
+   CreateTextLabel(PipsLabel, "label2", pipsLabel, 10, 40);
+   CreateTextLabel(SpreadLabel, "label3", spreadLabel, 10, 60);
+   CreateTextLabel(SwapLabel, "label4", swapLabel, 10, 80);
+   
    ChartRedraw(0);
    return (INIT_SUCCEEDED);
 }
@@ -174,6 +170,14 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
+   double profit = AccountInfoDouble(ACCOUNT_PROFIT);
+   string profitValue = DoubleToString(profit, 1);
+   string pipsValue = DoubleToString(GetProfitOpenPosInPoint(), 1);
+   string spreadValue = DoubleToString(MarketInfo(Symbol(), MODE_SPREAD), 1);
+
+   ProfitLabel.Text(profitLabel + profitValue);
+   PipsLabel.Text(pipsLabel + pipsValue);
+   SpreadLabel.Text(spreadLabel + spreadValue);
 }
 //+------------------------------------------------------------------+
 //| ChartEvent function                                              |
@@ -187,7 +191,7 @@ void OnChartEvent(const int id,
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-         OpenOrder(BUTTONID1, OP_BUY, inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
+         OpenOrder(BUTTONID1, OP_BUY, inpLot, inpStopLoss, inpTakeProfit, inpSlippage);
       else
       {
          Print("Maximum number of opened orders has been reached!");
@@ -199,7 +203,7 @@ void OnChartEvent(const int id,
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-         OpenOrder(BUTTONID2, OP_SELL, inpLots, inpStopLoss, inpTakeProfit, inpSlippage);
+         OpenOrder(BUTTONID2, OP_SELL, inpLot, inpStopLoss, inpTakeProfit, inpSlippage);
       else
       {
          Print("Maximum number of opened orders has been reached!");
@@ -208,10 +212,10 @@ void OnChartEvent(const int id,
    }
 
    if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID3)
-      CloseAllOrders();
+      CloseAllOrders(BUTTONID3);
 
    if (id == CHARTEVENT_OBJECT_CLICK && sparam == BUTTONID4)
-      BreakEven(inpBreakEvenOffset);
+      BreakEven(BUTTONID4, inpBreakEvenOffset);
 
    if (id == CHARTEVENT_CLICK && sparam != BUTTONID5)
    {
@@ -287,7 +291,7 @@ int CountOpenOrders()
    return count;
 }
 
-void CloseAllOrders()
+void CloseAllOrders(string buttonID)
 {
    int ticket = 0;
    int total = OrdersTotal();
@@ -298,20 +302,16 @@ void CloseAllOrders()
       {
          if (OrderType() == OP_BUY || OrderType() == OP_SELL)
          {
-            ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_ASK), 0);
-            ticket = OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_BID), 0);
+            OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_ASK), 0);
+            OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_BID), 0);
          }
-         if (ticket > 0)
-            Print("Order closed");
-         else
-            Print("Error = ", GetLastError());
       }
    }
-   ObjectSetInteger(0, BUTTONID3, OBJPROP_STATE, false);
+   ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
    Print("Closed all orders");
 }
 
-void BreakEven(int offset)
+void BreakEven(string buttonID, int offset)
 {
    int total = OrdersTotal();
    double openPrice, stopLoss = 0;
@@ -321,14 +321,14 @@ void BreakEven(int offset)
       if (OrderSelect(pos, SELECT_BY_POS))
       {
          openPrice = OrderOpenPrice();
-         stopLoss = NormalizeDouble(openPrice + (offset * _Point), _Digits);
+         stopLoss = (OrderType() == OP_BUY) ? NormalizeDouble(openPrice - (offset * _Point), _Digits) : NormalizeDouble(openPrice + (offset * _Point), _Digits);
          if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
             Print("Stoploss modified");
          else
             Print("Error = ", GetLastError());
       }
    }
-   ObjectSetInteger(0, BUTTONID4, OBJPROP_STATE, false);
+   ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
 }
 
 bool IsLegal(int x, int y, string buttonID)
@@ -419,4 +419,40 @@ void MoveSL(string buttonID, double lparam, double dparam)
       ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
       Print("Moved all SLs to mouse position");
    } 
+}
+
+void CreateTextLabel(CLabel &label, string name, string text, int x, int y)
+{
+   label.Text(text);
+   label.Font("Arial");
+   label.FontSize(12);
+   label.Color(clrWhiteSmoke);
+   label.Create(0, name, 0, x, y, 10, 10);
+}
+
+double GetProfitOpenPosInPoint(int op = -1, int mn = -1)
+{
+   double profit = 0.0;
+
+   for (int i = 0; i < OrdersTotal(); i++)
+     {
+      if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) 
+        {
+         if ((OrderSymbol() == Symbol()) && (op < 0 || OrderType() == op)) 
+           {
+            if (mn < 0 || OrderMagicNumber() == mn) 
+              {
+               if (OrderType() == OP_BUY) 
+                 {
+                     profit += (OrderProfit() / OrderLots() / MarketInfo(OrderSymbol(), MODE_TICKVALUE));
+                 }
+               if (OrderType() == OP_SELL) 
+                 {
+                     profit += (OrderProfit() / OrderLots() / MarketInfo(OrderSymbol(), MODE_TICKVALUE));
+                 }
+              }
+           }
+        }
+     }
+   return (profit);
 }
