@@ -1,10 +1,13 @@
 #include <stdlib.mqh>
 #include <button.mqh>
-#include <label.mqh>
+#include <background.mqh>
+#include <labels.mqh>
+#include <trader.mqh>
 #include <Controls/Label.mqh>
 
 #property strict
 #property script_show_inputs
+#property indicator_separate_window
 
 //--- input parameters
 extern double inpLot = 1.0;                                // Number of lots
@@ -21,13 +24,13 @@ extern int inpBackgroundMargin = 10;                       // Background margin
 extern int inpBackgroundPositionXOffset = -30;             // Background position X offset
 extern int inpBackgroundPositionYOffset = -10;             // Background position Y offset
 
-// extern color inpBackgroundBackColor = clrGray;             // Background color
-// extern ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
-// extern color inpBackgroundBorderColor = clrDarkGray;       // Flat border color (Flat)
-// extern ENUM_LINE_STYLE inpBackgroundStyle = STYLE_SOLID;   // Flat border style (Flat)
-// extern int inpBackgroundLineWidth = 3;                     // Flat border width (Flat)
-// extern bool inpBackgroundHidden = true;                    // Hidden in the object list
-// extern long inpBackgroundZOrder = 0;                       // Priority for mouse click
+extern color inpBackgroundBackColor = clrGray;             // Background color
+extern ENUM_BORDER_TYPE inpBackgroundBorder = BORDER_FLAT; // Border type
+extern color inpBackgroundBorderColor = clrDarkGray;       // Flat border color (Flat)
+extern ENUM_LINE_STYLE inpBackgroundStyle = STYLE_SOLID;   // Flat border style (Flat)
+extern int inpBackgroundLineWidth = 3;                     // Flat border width (Flat)
+extern bool inpBackgroundHidden = true;                    // Hidden in the object list
+extern long inpBackgroundZOrder = 0;                       // Priority for mouse click
 
 extern string inpBuyText = "BUY";                          // Buy button text
 extern string inpBuyFont = "Arial";                        // Buy button font
@@ -118,9 +121,9 @@ int OnInit()
    int xBackgroundPosition = (int)(windowWidth / 8) + inpBackgroundPositionXOffset + inpBackgroundMargin;
    int yBackgroundPosition = (int)(windowHeight / 16) + inpBackgroundPositionYOffset;
    
-   // CreateBackground(BACKGROUNDID, xBackgroundPosition, yBackgroundPosition, inpBackgroundBackColor, inpBackgroundBorder, inpCorner, inpBackgroundBorderColor, 
-   //                inpBackgroundStyle, inpBackgroundLineWidth, backgroundMoveToBack, backgroundSelection, inpBackgroundHidden, inpBackgroundZOrder, 
-   //                numberOfButtons, inpButtonWidth, inpButtonHeight, inpButtonSpacing, inpBackgroundMargin);
+   CreateBackground(BACKGROUNDID, xBackgroundPosition, yBackgroundPosition, inpBackgroundBackColor, inpBackgroundBorder, inpCorner, inpBackgroundBorderColor, 
+                  inpBackgroundStyle, inpBackgroundLineWidth, backgroundMoveToBack, backgroundSelection, inpBackgroundHidden, inpBackgroundZOrder, 
+                  numberOfButtons, inpButtonWidth, inpButtonHeight, inpButtonSpacing, inpBackgroundMargin);
 
    int xBuyButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int yBuyButtonPosition = yBackgroundPosition + inpBackgroundMargin;
@@ -173,16 +176,11 @@ void OnDeinit(const int reason)
 //+------------------------------------------------------------------+
 void OnTick()
 {
-   double profit = AccountInfoDouble(ACCOUNT_PROFIT);
-   string profitValue = DoubleToString(profit, 2);
-   string pipsValue = DoubleToString(GetProfitOpenPosInPoint(), 2);
-   string spreadValue = DoubleToString(MarketInfo(Symbol(), MODE_SPREAD), 2);
-   
-   PipsLabel.Text(pipsLabel + pipsValue);
-   ProfitLabel.Text(profitLabel + profitValue);
-   SpreadLabel.Text(spreadLabel + spreadValue);
-   SwapLabel.Text(swapLabel + GetSwap());
-   ExpTimeLabel.Text(timeLabel + GetTimeToNextBar());
+   LabelSetText(PipsLabel, pipsLabel, GetPips(2));
+   LabelSetText(ProfitLabel, profitLabel, GetProfit(2));
+   LabelSetText(SpreadLabel, spreadLabel, GetSpread(2));
+   LabelSetText(SwapLabel, swapLabel, GetSwap(2));
+   LabelSetText(ExpTimeLabel, timeLabel, GetTimeToNextBar(), false);
 }
 //+------------------------------------------------------------------+
 //| ChartEvent function                                              |
@@ -242,242 +240,4 @@ long GetWindowHeight()
    if (!ChartGetInteger(0, CHART_HEIGHT_IN_PIXELS, 0, height))
       Print("Failed to get the chart width! Error code = ", GetLastError());
    return height;
-}
-
-void OpenOrder(string buttonID, int cmd, double lots, double stopLoss, double takeProfit, int slippage)
-{
-   RefreshRates();
-   int ticket = 0;
-   int error = 0;
-   static int orderCount;
-   int price = (cmd == OP_BUY) ? Ask : Bid;
-
-   double _stopLoss = (cmd == OP_BUY) ? NormalizeDouble(Bid - stopLoss * _Point, _Digits) : NormalizeDouble(Ask + stopLoss * _Point, _Digits);
-   double _takeProfit = (cmd == OP_BUY) ? NormalizeDouble(Bid + takeProfit * _Point, _Digits) : NormalizeDouble(Ask - takeProfit * _Point, _Digits);
-
-   if (!OrderLimit(orderCount))
-   {
-      ticket = OrderSend(Symbol(), cmd, lots, price, slippage, _stopLoss, _takeProfit);
-   
-      if (ticket > 0)
-      {
-         if (OrderSelect(ticket, SELECT_BY_TICKET) == true)
-         {
-            ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
-            OrderPrint();
-            orderCount = OrderCounter();
-         }
-         else
-            Print("Error = ", GetLastError());
-      }
-      else
-      {
-         error = GetLastError();
-         Print("Error = ", ErrorDescription(error));
-      }
-   }
-   else
-   {
-      MessageBox("You've reached order limit (10) for today!", "Warning!");
-      ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
-   }
-}
-
-int CountOpenOrders()
-{
-   int count = 0;
-   int total = OrdersTotal();
-
-   for (int pos = 0; pos < total; pos++)
-   {
-      if (OrderSelect(pos, SELECT_BY_POS))
-         count++;
-   }
-   return count;
-}
-
-void CloseAllOrders(string buttonID)
-{
-   int ticket = 0;
-   int total = OrdersTotal();
-
-   for (int pos = total; pos >= 0; pos--)
-   {
-      if (OrderSelect(pos, SELECT_BY_POS) && OrderSymbol() == _Symbol)
-      {
-         if (OrderType() == OP_BUY || OrderType() == OP_SELL)
-         {
-            OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_ASK), 0);
-            OrderClose(OrderTicket(), OrderLots(), MarketInfo(_Symbol,MODE_BID), 0);
-         }
-      }
-   }
-   ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
-   Print("Closed all orders");
-}
-
-void BreakEven(string buttonID, int offset)
-{
-   int total = OrdersTotal();
-   double openPrice, stopLoss = 0;
-
-   for (int pos = 0; pos < total; pos++)
-   {
-      if (OrderSelect(pos, SELECT_BY_POS))
-      {
-         openPrice = OrderOpenPrice();
-         stopLoss = (OrderType() == OP_BUY) ? NormalizeDouble(openPrice - (offset * _Point), _Digits) : NormalizeDouble(openPrice + (offset * _Point), _Digits);
-         if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
-            Print("Stoploss modified");
-         else
-            Print("Error = ", GetLastError());
-      }
-   }
-   ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
-}
-
-bool IsLegal(int x, int y, string buttonID)
-{
-   bool result = true;
-   int windowWidth = (int)GetWindowWidth();
-   int buttonX = windowWidth - (int)ObjectGetInteger(0, buttonID, OBJPROP_XDISTANCE);
-   int buttonY = (int)ObjectGetInteger(0, buttonID, OBJPROP_YDISTANCE);
-   int buttonWidth = (int) ObjectGetInteger(0, buttonID, OBJPROP_XSIZE);
-   int buttonHeight = (int)ObjectGetInteger(0, buttonID, OBJPROP_YSIZE);
-
-   if (x >= buttonX && x <= (buttonX + buttonWidth))
-      if (y >= buttonY && y <= (buttonY + buttonHeight))
-         result = false;
-   return result;
-}
-
-bool OrderLimit(int count)
-{
-   const int limit = 10;
-
-   if (count >= limit)
-      return true;
-   else
-      return false;  
-}
-
-int OrderCounter()
-{
-   static int counter;
-
-   if (IsNewDay())
-      counter = 0;
-   else
-      counter++;
-   
-   return counter;
-}
-
-bool IsNewDay()
-{
-   string midnight = "00:00:00";
-   string currentTime = TimeToString(TimeCurrent(), TIME_SECONDS);
-
-   if (currentTime == midnight)
-      return true;
-   else
-      return false;
-}
-
-void MoveSL(string buttonID, double lparam, double dparam)
-{
-   long pressed = 0;
-
-   ObjectGetInteger(0, buttonID, OBJPROP_STATE, 0, pressed);
-   if ((bool)pressed && IsLegal((int)lparam, (int)dparam, buttonID))
-   {
-      int x = (int)lparam;
-      int y = (int)dparam;
-      datetime dt = 0;
-      double price = 0;
-      int window = 0;
-      double stopLoss = 0;
-      int total = OrdersTotal();
-
-      if (ChartXYToTimePrice(0, x, y, window, dt, price))
-      {
-         stopLoss = NormalizeDouble(price, _Digits);
-         for (int pos = 0; pos < total; pos++)
-         {
-            if (OrderSelect(pos, SELECT_BY_POS))
-            {
-               if (OrderModify(OrderTicket(), OrderOpenPrice(), stopLoss, OrderTakeProfit(), 0))
-               {
-                  OrderPrint();
-               }
-               else
-               {
-                  Print("Error = ", GetLastError());
-               }
-            }
-         }
-      }
-      else
-      {
-         Print("Error in conversion of mouse position to price");
-      }
-      ObjectSetInteger(0, buttonID, OBJPROP_STATE, false);
-      Print("Moved all SLs to mouse position");
-   } 
-}
-
-void CreateTextLabel(CLabel &label, string name, string text, int x, int y)
-{
-   label.Text(text);
-   label.Font("Arial");
-   label.FontSize(12);
-   label.Color(clrWhiteSmoke);
-   label.Create(0, name, 0, x, y, 10, 10);
-}
-
-double GetProfitOpenPosInPoint(int op = -1, int mn = -1)
-{
-   double profit = 0.0;
-
-   for (int i = 0; i < OrdersTotal(); i++)
-     {
-      if (OrderSelect(i, SELECT_BY_POS, MODE_TRADES)) 
-        {
-         if ((OrderSymbol() == Symbol()) && (op < 0 || OrderType() == op)) 
-           {
-            if (mn < 0 || OrderMagicNumber() == mn) 
-              {
-               if (OrderType() == OP_BUY) 
-                 {
-                     profit += (OrderProfit() / OrderLots() / MarketInfo(OrderSymbol(), MODE_TICKVALUE));
-                 }
-               if (OrderType() == OP_SELL) 
-                 {
-                     profit += (OrderProfit() / OrderLots() / MarketInfo(OrderSymbol(), MODE_TICKVALUE));
-                 }
-              }
-           }
-        }
-     }
-   return (profit);
-}
-
-string GetTimeToNextBar()
-{
-   int minutes = (int)(Time[0] + Period() * 60 - TimeCurrent());
-   int seconds = minutes % 60;
-   string _m = "", _s = "";
-   minutes  =  (minutes - seconds) / 60;
-
-   if (minutes < 10) 
-      _m    =  "0";
-   if (seconds < 10)
-      _s    =  "0";
-
-   return StringConcatenate(_m, DoubleToString(minutes, 0), ":", _s, DoubleToString(seconds, 0));
-}
-
-string GetSwap()
-{
-   return StringConcatenate("L: ", DoubleToStr(MarketInfo(Symbol(), MODE_SWAPLONG),2), " | S: ", DoubleToStr(MarketInfo(Symbol(), MODE_SWAPSHORT),2));
 }
