@@ -4,10 +4,10 @@
 #include <labels.mqh>
 #include <trader.mqh>
 #include <Controls/Label.mqh>
+#include <Controls/Button.mqh>
 
 #property strict
 #property script_show_inputs
-#property indicator_separate_window
 
 //--- input parameters
 extern double inpLot = 1.0;                                // Number of lots
@@ -16,6 +16,7 @@ extern double inpTakeProfit = 4500.0;                      // Take profit level
 extern int inpSlippage = 0;                                // Slippage value
 extern int inpMaxNumberOfOrders = 2;                       // Maximum number of open orders
 extern int inpBreakEvenOffset = 100;                       // BreakEven offset value
+extern int inpLimit = 10;                                  // Daily order limit
 
 extern int inpButtonWidth = 80;                            // Button width
 extern int inpButtonHeight = 30;                           // Button height
@@ -121,9 +122,9 @@ int OnInit()
    int xBackgroundPosition = (int)(windowWidth / 8) + inpBackgroundPositionXOffset + inpBackgroundMargin;
    int yBackgroundPosition = (int)(windowHeight / 16) + inpBackgroundPositionYOffset;
    
-   CreateBackground(BACKGROUNDID, xBackgroundPosition, yBackgroundPosition, inpBackgroundBackColor, inpBackgroundBorder, inpCorner, inpBackgroundBorderColor, 
-                  inpBackgroundStyle, inpBackgroundLineWidth, backgroundMoveToBack, backgroundSelection, inpBackgroundHidden, inpBackgroundZOrder, 
-                  numberOfButtons, inpButtonWidth, inpButtonHeight, inpButtonSpacing, inpBackgroundMargin);
+   // CreateBackground(BACKGROUNDID, xBackgroundPosition, yBackgroundPosition, inpBackgroundBackColor, inpBackgroundBorder, inpCorner, inpBackgroundBorderColor, 
+   //                inpBackgroundStyle, inpBackgroundLineWidth, backgroundMoveToBack, backgroundSelection, inpBackgroundHidden, inpBackgroundZOrder, 
+   //                numberOfButtons, inpButtonWidth, inpButtonHeight, inpButtonSpacing, inpBackgroundMargin);
 
    int xBuyButtonPosition = xBackgroundPosition - inpBackgroundMargin;
    int yBuyButtonPosition = yBackgroundPosition + inpBackgroundMargin;
@@ -179,7 +180,7 @@ void OnTick()
    LabelSetText(PipsLabel, pipsLabel, GetPips(2));
    LabelSetText(ProfitLabel, profitLabel, GetProfit(2));
    LabelSetText(SpreadLabel, spreadLabel, GetSpread(2));
-   LabelSetText(SwapLabel, swapLabel, GetSwap(2));
+   LabelSetText(SwapLabel, swapLabel, GetSwap(2), false);
    LabelSetText(ExpTimeLabel, timeLabel, GetTimeToNextBar(), false);
 }
 //+------------------------------------------------------------------+
@@ -194,7 +195,7 @@ void OnChartEvent(const int id,
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-         OpenOrder(BUTTONID1, OP_BUY, inpLot, inpStopLoss, inpTakeProfit, inpSlippage);
+         OpenOrder(BUTTONID1, OP_BUY, inpLot, inpStopLoss, inpTakeProfit, inpSlippage, inpLimit);
       else
       {
          Print("Maximum number of opened orders has been reached!");
@@ -206,7 +207,7 @@ void OnChartEvent(const int id,
    {
       int openOrders = CountOpenOrders();
       if (openOrders < inpMaxNumberOfOrders)
-         OpenOrder(BUTTONID2, OP_SELL, inpLot, inpStopLoss, inpTakeProfit, inpSlippage);
+         OpenOrder(BUTTONID2, OP_SELL, inpLot, inpStopLoss, inpTakeProfit, inpSlippage, inpLimit);
       else
       {
          Print("Maximum number of opened orders has been reached!");
