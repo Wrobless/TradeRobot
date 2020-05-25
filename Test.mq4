@@ -170,7 +170,16 @@ int OnInit()
 //+------------------------------------------------------------------+
 void OnDeinit(const int reason)
 {
-   ObjectsDeleteAll();
+   ObjectDelete(0, BUTTONID1);
+   ObjectDelete(0, BUTTONID2);
+   ObjectDelete(0, BUTTONID3);
+   ObjectDelete(0, BUTTONID4);
+   ObjectDelete(0, BUTTONID5);
+   ProfitLabel.Destroy(reason);
+   PipsLabel.Destroy(reason);
+   SpreadLabel.Destroy(reason);
+   SwapLabel.Destroy(reason);
+   ExpTimeLabel.Destroy(reason);
 }
 //+------------------------------------------------------------------+
 //| Expert tick function                                             |
